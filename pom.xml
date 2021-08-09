@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-parent</artifactId>
-        <version>35</version>
+        <version>38</version>
     </parent>
     <groupId>org.wildfly.extras</groupId>
     <artifactId>micrometer-feature-pack-parent</artifactId>
