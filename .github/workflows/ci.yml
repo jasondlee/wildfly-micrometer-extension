@@ -10,13 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+      - uses: actions/checkout@master
 
       - name: Set up JDK 11
         uses: actions/setup-java@v2
@@ -24,10 +18,14 @@ jobs:
           distribution: 'adopt' # See 'Supported distributions' for available options
           java-version: '11'
 
+      - uses: actions/cache@master
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
       - name: Build and Test
-        run: |
-          mvn --version
-          mvn -B install
+        run: mvn clean install
 
       - name: Zip Artifacts
         run: zip -R artifacts.zip 'server.log' 'surefire-reports/*.txt' 'surefire-reports/*.xml'
@@ -53,17 +51,10 @@ jobs:
           path: main
 
       - name: Checkout wildfly master
-        uses: actions/checkout@v2
+        uses: actions/checkout@master
         with:
           repository: wildfly/wildfly
           path: wildfly-master
-
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
 
       - name: Set up JDK 11
         uses: actions/setup-java@v2
@@ -71,10 +62,15 @@ jobs:
           distribution: 'adopt' # See 'Supported distributions' for available options
           java-version: '11'
 
+      - uses: actions/cache@master
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
       - name: Initialize Feature Pack version
         # Needed to download everything from Maven to not pollute the output in the next steps
-        run:
-          mvn help:evaluate -Dexpression=project.version -pl .
+        run: mvn help:evaluate -Dexpression=project.version -pl .
         working-directory: main
 
       - name: Set FEATURE_PACK_VERSION
@@ -114,9 +110,7 @@ jobs:
         working-directory: wildfly-master
 
       - name: Build and Test
-        run: |
-          mvn --version
-          mvn -B install -Dversion.org.wildfly=${WILDFLY_VERSION} -Dversion.org.wildfly.core=${WILDFLY_CORE_VERSION}
+        run: mvn -B install -Dversion.org.wildfly=${WILDFLY_VERSION} -Dversion.org.wildfly.core=${WILDFLY_CORE_VERSION}
         working-directory: main
 
       - name: Calculate directories to check
