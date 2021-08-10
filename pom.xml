@@ -94,6 +94,16 @@
             <layout>default</layout>
         </repository>
     </repositories>
+
+    <modules>
+        <module>build</module>
+        <module>dependency</module>
+        <!--        <module>example</module>-->
+        <module>feature-pack</module>
+        <module>subsystem</module>
+        <module>testsuite</module>
+    </modules>
+
     <dependencyManagement>
         <dependencies>
             <!-- WildFly dependencies -->
@@ -125,58 +135,28 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>micrometer</artifactId>
                 <version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>micrometer-dependency</artifactId>
                 <version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>micrometer-subsystem</artifactId>
                 <version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>micrometer-feature-pack</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>micrometer-feature-pack</artifactId>
                 <version>${project.version}</version>
                 <type>zip</type>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency><groupId>io.micrometer</groupId><artifactId>micrometer-core</artifactId><version>${version.io.micrometer}</version><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
@@ -285,14 +265,6 @@
         <url>${wildfly-extras.repo.scm.url}</url>
         <tag>HEAD</tag>
     </scm>
-    <modules>
-        <module>build</module>
-        <module>dependency</module>
-<!--        <module>example</module>-->
-        <module>feature-pack</module>
-        <module>subsystem</module>
-        <module>testsuite</module>
-    </modules>
 
     <profiles>
         <profile>

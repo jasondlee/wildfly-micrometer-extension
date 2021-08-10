@@ -35,6 +35,57 @@
         <license.src.directory>${basedir}/src/license</license.src.directory>
     </properties>
 
+    <dependencies>
+        <!-- Other feature pack dependencies -->
+        <dependency>
+            <groupId>org.wildfly</groupId>
+            <artifactId>wildfly-galleon-pack</artifactId>
+            <version>${version.org.wildfly}</version>
+            <type>zip</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wildfly.galleon-plugins</groupId>
+            <artifactId>wildfly-galleon-plugins</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <!-- module and copy artifact dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>micrometer-dependency</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>micrometer</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Micrometer -->
+        <dependency><groupId>org.wildfly.extras</groupId><artifactId>micrometer</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
+        <dependency><groupId>io.micrometer</groupId><artifactId>micrometer-core</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
+        <dependency><groupId>io.micrometer</groupId><artifactId>micrometer-registry-prometheus</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
+        <dependency><groupId>org.latencyutils</groupId><artifactId>LatencyUtils</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
+        <dependency><groupId>io.prometheus</groupId><artifactId>simpleclient_common</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
+        <dependency><groupId>io.prometheus</groupId><artifactId>simpleclient</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
+        <!-- -->
+
+        <!--
+
+                <dependency>
+                    <groupId>org.wildfly</groupId>
+                    <artifactId>wildfly-feature-pack-galleon-content</artifactId>
+                    <version>${version.org.wildfly}</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
+        -->
+
+    </dependencies>
+
     <build>
         <finalName>${server.name}</finalName>
         <pluginManagement>
@@ -162,55 +213,4 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <!-- Other feature pack dependencies -->
-        <dependency>
-            <groupId>org.wildfly</groupId>
-            <artifactId>wildfly-galleon-pack</artifactId>
-            <version>${version.org.wildfly}</version>
-            <type>zip</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wildfly.galleon-plugins</groupId>
-            <artifactId>wildfly-galleon-plugins</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-
-        <!-- module and copy artifact dependencies -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>micrometer-dependency</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>micrometer</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Micrometer -->
-        <dependency><groupId>org.wildfly.extras</groupId><artifactId>micrometer</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
-        <dependency><groupId>io.micrometer</groupId><artifactId>micrometer-core</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
-        <dependency><groupId>io.micrometer</groupId><artifactId>micrometer-registry-prometheus</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
-        <dependency><groupId>org.latencyutils</groupId><artifactId>LatencyUtils</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
-        <dependency><groupId>io.prometheus</groupId><artifactId>simpleclient_common</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
-        <dependency><groupId>io.prometheus</groupId><artifactId>simpleclient</artifactId><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
-        <!-- -->
-
-        <!--
-
-                <dependency>
-                    <groupId>org.wildfly</groupId>
-                    <artifactId>wildfly-feature-pack-galleon-content</artifactId>
-                    <version>${version.org.wildfly}</version>
-                    <type>pom</type>
-                    <scope>provided</scope>
-                </dependency>
-        -->
-
-    </dependencies>
 </project>
