@@ -19,6 +19,8 @@
 
 package org.wildfly.extras.micrometer;
 
+import java.util.List;
+
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -41,7 +43,12 @@ public class MicrometerSubsystemAdd extends AbstractBoottimeAddStepHandler {
     protected void performBoottime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
         super.performBoottime(context, operation, model);
 
-        final MicrometerContextService service = MicrometerContextService.install(context, false);
+        List<String> exposedSubsystems = MicrometerSubsystemDefinition.EXPOSED_SUBSYSTEMS.unwrap(context, model);
+        boolean exposeAnySubsystem = exposedSubsystems.remove("*");
+        String prefix = MicrometerSubsystemDefinition.PREFIX.resolveModelAttribute(context, model).asStringOrNull();
+        boolean securityEnabled = MicrometerSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model).asBoolean();
+
+        final MicrometerContextService service = MicrometerContextService.install(context, securityEnabled);
 
         context.addStep(new AbstractDeploymentChainStep() {
             public void execute(DeploymentProcessorTarget processorTarget) {

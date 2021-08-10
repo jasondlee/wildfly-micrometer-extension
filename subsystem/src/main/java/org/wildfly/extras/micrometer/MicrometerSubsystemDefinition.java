@@ -24,8 +24,12 @@ import java.util.Collection;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PersistentResourceDefinition;
+import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SimpleResourceDefinition;
+import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.capability.RuntimeCapability;
+import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.ModelType;
 
 public class MicrometerSubsystemDefinition extends PersistentResourceDefinition {
     static final String HTTP_EXTENSIBILITY_CAPABILITY = "org.wildfly.management.http.extensible";
@@ -43,8 +47,25 @@ public class MicrometerSubsystemDefinition extends PersistentResourceDefinition 
             "org.wildfly.extras.micrometer"
     };
 
-    static final AttributeDefinition[] ATTRIBUTES = {
-    };
+    static final AttributeDefinition SECURITY_ENABLED = SimpleAttributeDefinitionBuilder.create("security-enabled", ModelType.BOOLEAN)
+            .setDefaultValue(ModelNode.FALSE)
+            .setRequired(false)
+            .setRestartAllServices()
+            .setAllowExpression(true)
+            .build();
+
+    static final StringListAttributeDefinition EXPOSED_SUBSYSTEMS = new StringListAttributeDefinition.Builder("exposed-subsystems")
+            .setRequired(false)
+            .setRestartAllServices()
+            .build();
+
+    static final AttributeDefinition PREFIX = SimpleAttributeDefinitionBuilder.create("prefix", ModelType.STRING)
+            .setRequired(false)
+            .setRestartAllServices()
+            .setAllowExpression(true)
+            .build();
+
+    static final AttributeDefinition[] ATTRIBUTES = { SECURITY_ENABLED, EXPOSED_SUBSYSTEMS, PREFIX };
 
     public static final MicrometerSubsystemDefinition INSTANCE = new MicrometerSubsystemDefinition();
 
