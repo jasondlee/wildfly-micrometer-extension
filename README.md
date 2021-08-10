@@ -1,25 +1,12 @@
-![Galleon Pack Template Java CI](https://github.com/wildfly/wildfly-feature-pack-template/workflows/Galleon%20Pack%20Template%20Java%20CI/badge.svg)
+[![Micrometer Galleon Pack Java CI](https://github.com/jasondlee/wildfly-micrometer-extension/actions/workflows/ci.yml/badge.svg)](https://github.com/jasondlee/wildfly-micrometer-extension/actions/workflows/ci.yml)
 
-# Wildfly Galleon Feature Pack Template
+# Wildfly Galleon Micrometer Feature Pack 
 
-A template Galleon feature pack to provision a new subsystem into WildFly using Galleon. It is runnable as-is, and
-provides a very basic subsystem which supplies a CDI `@Produces` method. Instances from this `@Produces` method are
-available to your deployments when your subsystem is installed in the server.
-
-We will start off by showing you how to run the example, and dig more into the details of how this feature pack is
-structured so that you can adapt it to provide your functionality as a Galleon feature pack.
-
-The master branch targets the current wildfly version under development. When WildFly is released there is a tag for the
-relevant WildFly version:
-
-* [WildFly 18](https://github.com/wildfly/wildfly-feature-pack-template/tree/wildfly-18)
-* [WildFly 19](https://github.com/wildfly/wildfly-feature-pack-template/tree/wildfly-19)
-* [WildFly 20](https://github.com/wildfly/wildfly-feature-pack-template/tree/wildfly-20)
-* [WildFly 23](https://github.com/wildfly/wildfly-feature-pack-template/tree/wildfly-23)
+Adds Micrometer support to WildFly. Details coming...
 
 ## Building the Galleon feature pack
 
-To build the Galleon feature pack, simply clone this repository, and on your command line go to the checkout folder and
+To build the feature pack, simply clone this repository, and on your command line go to the checkout folder and
 run
 
 ```
@@ -42,7 +29,7 @@ folder. The `@ExampleQualifier` Qualifier is also defined in the `dependency/` f
 Start the server by running
 
 ```
-./build/target/wildfly-<WildFly Version>-micrometer-<Template Version>/bin/standalone.sh
+./build/target/wildfly-<WildFly Version>-micrometer-<Feature Pack Version>/bin/standalone.sh
 ```
 
 In another terminal window run:
@@ -63,24 +50,18 @@ the `<properties>` section. However, newer versions of WildFly are generally bac
 into some server internals) so you can install it into a later version of WildFly.
 
 It adds an additional layer called `micrometer-layer`, which contains a new subsystem called `micrometer`. This
-subsystem is implemented in the
-`org.wildfly.extras.micrometer` module which in turn has a dependency on
-the `org.wildfly.micrometer-dependency` module. The latter module basically makes a CDI `@Produces` available. The code
-for these modules are in the
-[`subsystem/`](subsystem)
-and [`dependency/`](dependency)
-Maven sub-modules, and the subsystem's
-[`DependencyProcessor`](subsystem/src/main/java/org/wildfly/extension/feature/pack/template/subsystem/deployment/DependencyProcessor.java)
-makes the `org.wildfly.micrometer-dependency` module available to the deployment.
+subsystem is implemented in the `org.wildfly.extras.micrometer` module which in turn has a dependency on 
+`io.micrometer:micrometer-registry-prometheus`. The module makes a `PrometheusMeterRegistry` available via CDI. The code
+for this module is in the [`subsystem/`](subsystem) Maven sub-modules, and the subsystem's
+[`DependencyProcessor`](subsystem/src/main/java/org/wildfly/extras/micrometer/MicrometerDependencyProcessor.java)
+makes the `org.wildfly.extras.micrometer` module available to the deployment.
 
-The [`feature-pack/`](feature-pack)
-Maven sub-module defines the Galleon feature pack. It defines the JBoss modules for the subsystem and dependency under
-the [`feature-pack/src/main/resources/modules/system/layers/base`](feature-pack/src/main/resources/modules/system/layers/base)
-directory. Both of these modules are brought in by the layer implemented by this Galleon Feature Pack.
+The [`feature-pack/`](feature-pack) Maven sub-module defines the Galleon feature pack. It defines the JBoss modules for 
+the subsystem under the[`feature-pack/src/main/resources/modules/system/layers/base`](feature-pack/src/main/resources/modules/system/layers/base)
+directory. The module is brought in by the layer implemented by this Galleon Feature Pack.
 
-The layer is defined
-in [`feature-pack/src/main/resources/layers/standalone/micrometer-layer/layer-spec.xml`](feature-pack/src/main/resources/layers/standalone/micrometer-layer/layer-spec.xml)
-. As we are making a CDI `@Produces` method available we need CDI, so our layer has a dependency on the `cdi` layer.
+The layer is defined in [`feature-pack/src/main/resources/layers/standalone/micrometer-layer/layer-spec.xml`](feature-pack/src/main/resources/layers/standalone/micrometer-layer/layer-spec.xml)
+. As we are making a CDI bean available, we need CDI, so our layer has a dependency on the `cdi` layer.
 
 Our layer also has a dependency on the `micrometer` feature group which is defined in
 [`feature-pack/src/main/resources/feature_groups/micrometer.xml`](feature-pack/src/main/resources/feature_groups/micrometer.xml)
@@ -97,7 +78,7 @@ provisioning the server this results in an operation to add the subsystem:
 /subsystem=micrometer:add()
 ``` 
 
-Our subsystem is empty, as it has no attributes or child resources.
+Our subsystem is empty (_this will change_), as it has no attributes or child resources.
 
 As an example, __if__ the subsystem had an attribute called
 `test` which should be set to `10`, we would write its feature spec as
@@ -118,9 +99,7 @@ subsystem add operation:
 [`feature-pack/wildfly-feature-pack-build.xml`](feature-pack/wildfly-feature-pack-build.xml)
 takes care of adding the subsystem to the configuration under `<extensions>` near the end of the file where we add a
 dependency on the `org.wildfly.extras.micrometer` module we have defined for our subsystem. Galleon is smart
-enough to look at the dependencies of this module to bring in modules it in turn depends on. So in this case it will
-e.g. bring in the `org.wildfly.micrometer-dependency` module (or 'package' in Galleon terminology)
-too.
+enough to look at the dependencies of this module to bring in modules it in turn depends on. 
 
 It also configures the feature packs that we depend upon. Note that we have a direct dependency
 on `org.wildfly:wildfly-galleon-pack`. This in turn has a dependency on
@@ -191,8 +170,7 @@ the `wildfly-feature-pack-build.xml`
 where the extension module is added. Modules depended on by the extension module are pulled in too. If you have some
 additional modules to add, you can add those in the
 `registerAdditionalRuntimePackages()` method
-of [`TemplateSubsystemDefinition`](subsystem/src/main/java/org/wildfly/extension/feature/pack/template/subsystem/TemplateSubsystemDefinition.java)
-.
+of [`TemplateSubsystemDefinition`](subsystem/src/main/java/org/wildfly/extension/feature/pack/template/subsystem/TemplateSubsystemDefinition.java).
 
 If your addition is not a feature, we use the `build-user-feature-pack` goal of the plugin. This does not use  
 `wildfly-feature-pack-build.xml`, and since it does not define a subsystem there is no
