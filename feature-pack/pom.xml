@@ -54,11 +54,6 @@
         <!-- module and copy artifact dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>micrometer-dependency</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>micrometer</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>

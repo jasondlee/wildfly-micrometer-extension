@@ -45,9 +45,11 @@
         <linkXRef>false</linkXRef>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <maven.redhat.repository.url>${maven.repository.protocol}://maven.repository.redhat.com/ga/</maven.redhat.repository.url>
+        <maven.redhat.repository.url>${maven.repository.protocol}://maven.repository.redhat.com/ga/
+        </maven.redhat.repository.url>
         <maven.repository.protocol>https</maven.repository.protocol>
-        <maven.repository.url>${maven.repository.protocol}://repository.jboss.org/nexus/content/groups/public/</maven.repository.url>
+        <maven.repository.url>${maven.repository.protocol}://repository.jboss.org/nexus/content/groups/public/
+        </maven.repository.url>
         <server.name>wildfly-${version.org.wildfly}-micrometer-${project.version}</server.name>
         <version.io.micrometer>1.7.2</version.io.micrometer>
         <version.io.prometheus>0.10.0</version.io.prometheus>
@@ -60,8 +62,10 @@
         <version.org.wildfly.galleon-plugins>4.2.8.Final</version.org.wildfly.galleon-plugins>
         <version.org.wildfly>24.0.1.Final</version.org.wildfly>
         <version.wildfly.maven.plugin>2.0.0.Final</version.wildfly.maven.plugin>
-        <wildfly-extras.repo.scm.connection>git@github.com:wildfly-extras/wildfly-galleon-pack-template.git</wildfly-extras.repo.scm.connection>
-        <wildfly-extras.repo.scm.url>https://github.com/wildfly-extras/wildfly-galleon-pack-template</wildfly-extras.repo.scm.url>
+        <wildfly-extras.repo.scm.connection>git@github.com:wildfly-extras/wildfly-galleon-pack-template.git
+        </wildfly-extras.repo.scm.connection>
+        <wildfly-extras.repo.scm.url>https://github.com/wildfly-extras/wildfly-galleon-pack-template
+        </wildfly-extras.repo.scm.url>
         <wildfly.build.output.dir>build/target/${server.name}</wildfly.build.output.dir>
     </properties>
     <repositories>
@@ -97,8 +101,7 @@
 
     <modules>
         <module>build</module>
-        <module>dependency</module>
-        <!--        <module>example</module>-->
+        <module>example</module>
         <module>feature-pack</module>
         <module>subsystem</module>
         <module>testsuite</module>
@@ -138,11 +141,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>micrometer-dependency</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>micrometer-subsystem</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -159,11 +157,61 @@
                 <type>zip</type>
             </dependency>
 
-            <dependency><groupId>io.micrometer</groupId><artifactId>micrometer-core</artifactId><version>${version.io.micrometer}</version><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
-            <dependency><groupId>io.micrometer</groupId><artifactId>micrometer-registry-prometheus</artifactId><version>${version.io.micrometer}</version><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
-            <dependency><groupId>org.latencyutils</groupId><artifactId>LatencyUtils</artifactId><version>${version.org.latencyutils}</version><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
-            <dependency><groupId>io.prometheus</groupId><artifactId>simpleclient_common</artifactId><version>${version.io.prometheus}</version><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
-            <dependency><groupId>io.prometheus</groupId><artifactId>simpleclient</artifactId><version>${version.io.prometheus}</version><exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions></dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-core</artifactId>
+                <version>${version.io.micrometer}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>${version.io.micrometer}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.latencyutils</groupId>
+                <artifactId>LatencyUtils</artifactId>
+                <version>${version.org.latencyutils}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_common</artifactId>
+                <version>${version.io.prometheus}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient</artifactId>
+                <version>${version.io.prometheus}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
             <!-- External dependencies -->
             <!-- This does not go into the modules so don't worry about exclusions -->

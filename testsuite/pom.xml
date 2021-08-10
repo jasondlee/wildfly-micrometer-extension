@@ -29,7 +29,7 @@
     <name>Micrometer Galleon Feature Pack - Test Suite</name>
     <packaging>pom</packaging>
     <modules>
-<!--        <module>integration</module>-->
+        <module>integration</module>
     </modules>
 
     <properties>

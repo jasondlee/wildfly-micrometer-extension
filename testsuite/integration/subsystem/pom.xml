@@ -46,11 +46,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>micrometer-dependency</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
