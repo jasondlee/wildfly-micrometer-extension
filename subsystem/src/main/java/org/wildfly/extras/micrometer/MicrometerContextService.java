@@ -25,6 +25,8 @@ import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROM
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -53,6 +55,7 @@ public class MicrometerContextService implements Service {
     private final Supplier<ExtensibleHttpManagement> extensibleHttpManagement;
     private final Map<REGISTRY_TYPES, MeterRegistry> registries = new HashMap<>();
     private final Supplier<Boolean> securityEnabledSupplier;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     // eh?
     private enum REGISTRY_TYPES {
@@ -115,13 +118,18 @@ public class MicrometerContextService implements Service {
         extensibleHttpManagement.get().addManagementHandler(CONTEXT_NAME, securityEnabledSupplier.get(), new HttpHandler() {
             @Override
             public void handleRequest(HttpServerExchange exchange) {
-                StringBuilder sb = new StringBuilder();
-                registries.values().forEach(r -> {
-                    if (r instanceof PrometheusMeterRegistry) {
-                        sb.append(((PrometheusMeterRegistry) r).scrape());
-                    }
-                });
-                exchange.getResponseSender().send(sb.toString());
+                lock.readLock().lock();
+                try {
+                    StringBuilder sb = new StringBuilder();
+                    registries.values().forEach(r -> {
+                        if (r instanceof PrometheusMeterRegistry) {
+                            sb.append(((PrometheusMeterRegistry) r).scrape());
+                        }
+                    });
+                    exchange.getResponseSender().send(sb.toString());
+                } finally {
+                    lock.readLock().unlock();
+                }
             }
         });
         consumer.accept(this);

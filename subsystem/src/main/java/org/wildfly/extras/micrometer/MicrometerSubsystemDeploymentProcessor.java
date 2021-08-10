@@ -36,7 +36,6 @@ import org.jboss.modules.ModuleClassLoader;
 import org.wildfly.security.manager.WildFlySecurityManager;
 
 public class MicrometerSubsystemDeploymentProcessor implements DeploymentUnitProcessor {
-    public static final int PRIORITY = 0x4000;
     private final MicrometerContextService service;
 
     public MicrometerSubsystemDeploymentProcessor(MicrometerContextService service) {
@@ -64,7 +63,7 @@ public class MicrometerSubsystemDeploymentProcessor implements DeploymentUnitPro
             throw MICROMETER_LOGGER.deploymentRequiresCapability(deploymentPhaseContext.getDeploymentUnit().getName(),
                     WELD_CAPABILITY_NAME);
         }
-        setupMicrometerCdiBeans(deploymentPhaseContext, support);
+        setupMicrometerCdiBeans(deploymentPhaseContext);
     }
 
     @Override
@@ -73,8 +72,7 @@ public class MicrometerSubsystemDeploymentProcessor implements DeploymentUnitPro
 //        registry.close();
     }
 
-    private void setupMicrometerCdiBeans(DeploymentPhaseContext deploymentPhaseContext,
-                                         CapabilityServiceSupport support) throws DeploymentUnitProcessingException {
+    private void setupMicrometerCdiBeans(DeploymentPhaseContext deploymentPhaseContext) {
         final DeploymentUnit deploymentUnit = deploymentPhaseContext.getDeploymentUnit();
         final ClassLoader initialCl = WildFlySecurityManager.getCurrentContextClassLoaderPrivileged();
         final Module module = deploymentUnit.getAttachment(Attachments.MODULE);
@@ -82,12 +80,9 @@ public class MicrometerSubsystemDeploymentProcessor implements DeploymentUnitPro
 
         try {
             WildFlySecurityManager.setCurrentContextClassLoaderPrivileged(moduleCL);
-//            final MeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 
             // We may run into naming conflicts with this. How to solve?
             MicrometerCdiExtension.registerApplicationRegistry(moduleCL, service.getApplicationMetricsRegistry());
-        } catch (SecurityException | IllegalArgumentException ex) {
-//            MICROMETER_LOGGER.errorResolvingTracer(ex);
         } finally {
             WildFlySecurityManager.setCurrentContextClassLoaderPrivileged(initialCl);
         }

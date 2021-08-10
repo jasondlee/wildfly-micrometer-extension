@@ -60,7 +60,7 @@
 
 
         <!-- Server arguments. Cannot have a null server argument in ARQ, set a dummy system property -->
-        <jboss.args>-Dkabir.surname=khan</jboss.args>
+        <jboss.args>-Djason.surname=lee</jboss.args>
         <!-- =================== -->
 
         <!-- Additional JVM args, like those for EC2. -->

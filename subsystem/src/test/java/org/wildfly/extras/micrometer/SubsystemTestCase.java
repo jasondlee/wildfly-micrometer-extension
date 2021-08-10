@@ -21,7 +21,7 @@ import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
 import org.jboss.as.subsystem.test.AdditionalInitialization;
 
 /**
- * @author <a href="mailto:kabir.khan@jboss.com">Kabir Khan</a>
+ * @author <a href="mailto:jasondlee@redhat.com">Jason Lee</a>
  */
 public class SubsystemTestCase extends AbstractSubsystemBaseTest {
 
