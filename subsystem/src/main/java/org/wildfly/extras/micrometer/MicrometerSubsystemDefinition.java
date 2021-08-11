@@ -30,10 +30,23 @@ import org.jboss.as.controller.StringListAttributeDefinition;
 import org.jboss.as.controller.capability.RuntimeCapability;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
+import org.jboss.msc.service.ServiceName;
+import org.wildfly.extras.micrometer.metrics.MetricCollector;
 
 public class MicrometerSubsystemDefinition extends PersistentResourceDefinition {
-    static final String HTTP_EXTENSIBILITY_CAPABILITY = "org.wildfly.management.http.extensible";
+    public static final String HTTP_EXTENSIBILITY_CAPABILITY = "org.wildfly.management.http.extensible";
+    public static final String CLIENT_FACTORY_CAPABILITY ="org.wildfly.management.model-controller-client-factory";
+    public static final String MANAGEMENT_EXECUTOR ="org.wildfly.management.executor";
+    public static final String PROCESS_STATE_NOTIFIER = "org.wildfly.management.process-state-notifier";
+    public static final String METRICS_HTTP_SECURITY_CAPABILITY = "org.wildfly.extension.metrics.http-context.security-enabled";
+    public static final String METRICS_SCAN_CAPABILITY = "org.wildfly.extension.metrics.scan";
+
     public static final String MICROMETER_HTTP_SECURITY_CAPABILITY = "org.wildfly.extras.micrometer.http-context.security-enabled";
+    private static final RuntimeCapability<Void> METRICS_COLLECTOR_RUNTIME_CAPABILITY =
+            RuntimeCapability.Builder.of("org.wildfly.extension.metrics.wildfly-collector", MetricCollector.class)
+                    .addRequirements(CLIENT_FACTORY_CAPABILITY, MANAGEMENT_EXECUTOR, PROCESS_STATE_NOTIFIER)
+                    .build();
+    public static final ServiceName WILDFLY_COLLECTOR = METRICS_COLLECTOR_RUNTIME_CAPABILITY.getCapabilityServiceName();
 
     static final RuntimeCapability<Void> MICROMETER_HTTP_CONTEXT_CAPABILITY = RuntimeCapability.Builder
             .of("org.wildfly.extras.micrometer.http-context", MicrometerContextService.class)

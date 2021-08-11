@@ -19,11 +19,14 @@
 
 package org.wildfly.extras.micrometer;
 
+import static org.jboss.as.controller.OperationContext.Stage.VERIFY;
+
 import java.util.List;
 
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.server.AbstractDeploymentChainStep;
 import org.jboss.as.server.DeploymentProcessorTarget;
 import org.jboss.as.server.deployment.Phase;
@@ -66,5 +69,14 @@ public class MicrometerSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
             }
         }, OperationContext.Stage.RUNTIME);
+
+        context.addStep(new OperationStepHandler() {
+            @Override
+            public void execute(OperationContext operationContext, ModelNode modelNode) {
+
+            }
+        }, VERIFY);
+
+        MicrometerExtensionLogger.MICROMETER_LOGGER.activatingSubsystem();
     }
 }

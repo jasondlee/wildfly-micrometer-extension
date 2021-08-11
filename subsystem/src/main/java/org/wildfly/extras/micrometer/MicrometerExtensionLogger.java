@@ -20,10 +20,13 @@
 package org.wildfly.extras.micrometer;
 
 import static org.jboss.logging.Logger.Level.INFO;
+import static org.jboss.logging.Logger.Level.WARN;
 
+import org.jboss.as.controller.PathAddress;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
+import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
@@ -47,4 +50,12 @@ public interface MicrometerExtensionLogger extends BasicLogger {
 
     @Message(id = 4, value = "Deployment %s requires use of the '%s' capability but it is not currently registered")
     DeploymentUnitProcessingException deploymentRequiresCapability(String deploymentName, String capabilityName);
+
+    @LogMessage(level = WARN)
+    @Message(id = 5, value = "Unable to read attribute %s on %s: %s.")
+    void unableToReadAttribute(String attributeName, PathAddress address, String error);
+
+    @LogMessage(level = WARN)
+    @Message(id = 6, value = "Unable to convert attribute %s on %s to Double value.")
+    void unableToConvertAttribute(String attributeName, PathAddress address, @Cause Exception exception);
 }
