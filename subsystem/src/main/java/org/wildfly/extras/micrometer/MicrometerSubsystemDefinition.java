@@ -34,30 +34,33 @@ import org.jboss.msc.service.ServiceName;
 import org.wildfly.extras.micrometer.metrics.MetricCollector;
 
 public class MicrometerSubsystemDefinition extends PersistentResourceDefinition {
+    public static final String MICROMETER_MODULE = "org.wildfly.extras.micrometer";
     public static final String HTTP_EXTENSIBILITY_CAPABILITY = "org.wildfly.management.http.extensible";
-    public static final String CLIENT_FACTORY_CAPABILITY ="org.wildfly.management.model-controller-client-factory";
-    public static final String MANAGEMENT_EXECUTOR ="org.wildfly.management.executor";
+    public static final String CLIENT_FACTORY_CAPABILITY = "org.wildfly.management.model-controller-client-factory";
+    public static final String MANAGEMENT_EXECUTOR = "org.wildfly.management.executor";
     public static final String PROCESS_STATE_NOTIFIER = "org.wildfly.management.process-state-notifier";
-    public static final String METRICS_HTTP_SECURITY_CAPABILITY = "org.wildfly.extension.metrics.http-context.security-enabled";
-    public static final String METRICS_SCAN_CAPABILITY = "org.wildfly.extension.metrics.scan";
+    public static final String MICROMETER_HTTP_SECURITY_CAPABILITY = MICROMETER_MODULE + ".http-context.security-enabled";
 
-    public static final String MICROMETER_HTTP_SECURITY_CAPABILITY = "org.wildfly.extras.micrometer.http-context.security-enabled";
-    private static final RuntimeCapability<Void> METRICS_COLLECTOR_RUNTIME_CAPABILITY =
-            RuntimeCapability.Builder.of("org.wildfly.extension.metrics.wildfly-collector", MetricCollector.class)
+    private static final RuntimeCapability<Void> MICROMETER_COLLECTOR_RUNTIME_CAPABILITY =
+            RuntimeCapability.Builder.of(MICROMETER_MODULE + ".wildfly-collector", MetricCollector.class)
                     .addRequirements(CLIENT_FACTORY_CAPABILITY, MANAGEMENT_EXECUTOR, PROCESS_STATE_NOTIFIER)
                     .build();
-    public static final ServiceName WILDFLY_COLLECTOR = METRICS_COLLECTOR_RUNTIME_CAPABILITY.getCapabilityServiceName();
+    public static final RuntimeCapability<Void> MICROMETER_REGISTRY_RUNTIME_CAPABILITY =
+            RuntimeCapability.Builder.of(MICROMETER_MODULE + ".registry", MicrometerRegistries.class)
+                    .build();
+    public static final RuntimeCapability<Void> MICROMETER_HTTP_CONTEXT_CAPABILITY =
+            RuntimeCapability.Builder.of(MICROMETER_MODULE + ".http-context", MicrometerContextService.class)
+//                    .addRequirements(HTTP_EXTENSIBILITY_CAPABILITY)
+                    .build();
 
-    static final RuntimeCapability<Void> MICROMETER_HTTP_CONTEXT_CAPABILITY = RuntimeCapability.Builder
-            .of("org.wildfly.extras.micrometer.http-context", MicrometerContextService.class)
-//            .addRequirements(HTTP_EXTENSIBILITY_CAPABILITY)
-            .build();
+    public static final ServiceName MICROMETER_COLLECTOR = MICROMETER_COLLECTOR_RUNTIME_CAPABILITY.getCapabilityServiceName();
+    public static final ServiceName MICROMETER_REGISTRIES = MICROMETER_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName();
 
     public static final String[] MODULES = {
     };
 
     public static final String[] EXPORTED_MODULES = {
-            "org.wildfly.extras.micrometer"
+            MICROMETER_MODULE
     };
 
     static final AttributeDefinition SECURITY_ENABLED = SimpleAttributeDefinitionBuilder.create("security-enabled", ModelType.BOOLEAN)
@@ -78,18 +81,15 @@ public class MicrometerSubsystemDefinition extends PersistentResourceDefinition 
             .setAllowExpression(true)
             .build();
 
-    static final AttributeDefinition[] ATTRIBUTES = { SECURITY_ENABLED, EXPOSED_SUBSYSTEMS, PREFIX };
-
+    static final AttributeDefinition[] ATTRIBUTES = {SECURITY_ENABLED, EXPOSED_SUBSYSTEMS, PREFIX};
     public static final MicrometerSubsystemDefinition INSTANCE = new MicrometerSubsystemDefinition();
 
     protected MicrometerSubsystemDefinition() {
-
         super(new SimpleResourceDefinition.Parameters(MicrometerSubsystemExtension.SUBSYSTEM_PATH,
                 MicrometerSubsystemExtension.getResourceDescriptionResolver())
                 .setAddHandler(MicrometerSubsystemAdd.INSTANCE)
                 .setRemoveHandler(MicrometerSubsystemRemove.INSTANCE)
                 .addCapabilities(MICROMETER_HTTP_CONTEXT_CAPABILITY));
-
     }
 
     @Override

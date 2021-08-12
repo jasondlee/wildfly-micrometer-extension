@@ -93,7 +93,10 @@ public class MetricCollector {
                                          ImmutableManagementResourceRegistration managementResourceRegistration,
                                          PathAddress address,
                                          Function<PathAddress, PathAddress> resourceAddressResolver,
-                                         MetricRegistration registration, boolean exposeAnySubsystem, List<String> exposedSubsystems, String prefix) {
+                                         MetricRegistration registration,
+                                         boolean exposeAnySubsystem,
+                                         List<String> exposedSubsystems,
+                                         String prefix) {
         if (!isExposingMetrics(address, exposeAnySubsystem, exposedSubsystems)) {
             return;
         }

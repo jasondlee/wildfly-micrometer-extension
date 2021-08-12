@@ -22,24 +22,13 @@ package org.wildfly.extras.micrometer;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.HTTP_EXTENSIBILITY_CAPABILITY;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROMETER_HTTP_CONTEXT_CAPABILITY;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROMETER_HTTP_SECURITY_CAPABILITY;
+import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROMETER_REGISTRY_RUNTIME_CAPABILITY;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
-import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
-import io.micrometer.prometheus.PrometheusConfig;
-import io.micrometer.prometheus.PrometheusMeterRegistry;
-import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.server.mgmt.domain.ExtensibleHttpManagement;
 import org.jboss.msc.Service;
@@ -53,26 +42,21 @@ public class MicrometerContextService implements Service {
 
     private final Consumer<MicrometerContextService> consumer;
     private final Supplier<ExtensibleHttpManagement> extensibleHttpManagement;
-    private final Map<REGISTRY_TYPES, MeterRegistry> registries = new HashMap<>();
     private final Supplier<Boolean> securityEnabledSupplier;
+    private final Supplier<MicrometerRegistries> registriesSupplier;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
-
-    // eh?
-    private enum REGISTRY_TYPES {
-        APP, JVM, VENDOR
-    }
-
-    ;
 
     static MicrometerContextService install(OperationContext context, boolean securityEnabled) {
         ServiceBuilder<?> serviceBuilder = context.getServiceTarget()
                 .addService(MICROMETER_HTTP_CONTEXT_CAPABILITY.getCapabilityServiceName());
 
         Supplier<ExtensibleHttpManagement> extensibleHttpManagement =
-                serviceBuilder.requires(context.getCapabilityServiceName(HTTP_EXTENSIBILITY_CAPABILITY,
-                        ExtensibleHttpManagement.class));
+                serviceBuilder.requires(context.getCapabilityServiceName(HTTP_EXTENSIBILITY_CAPABILITY, ExtensibleHttpManagement.class));
+        Supplier<MicrometerRegistries> registries =
+                serviceBuilder.requires(context.getCapabilityServiceName(MICROMETER_REGISTRY_RUNTIME_CAPABILITY.getName(), MicrometerRegistries.class));
         Consumer<MicrometerContextService> metricsContext =
                 serviceBuilder.provides(MICROMETER_HTTP_CONTEXT_CAPABILITY.getCapabilityServiceName());
+
         final Supplier<Boolean> securityEnabledSupplier;
         if (context.getCapabilityServiceSupport().hasCapability(MICROMETER_HTTP_SECURITY_CAPABILITY)) {
             securityEnabledSupplier = serviceBuilder.requires(ServiceName.parse(MICROMETER_HTTP_SECURITY_CAPABILITY));
@@ -83,7 +67,8 @@ public class MicrometerContextService implements Service {
         // ???
         MicrometerContextService service = new MicrometerContextService(metricsContext,
                 extensibleHttpManagement,
-                securityEnabledSupplier);
+                securityEnabledSupplier,
+                registries);
 
         serviceBuilder.setInstance(service)
                 .install();
@@ -93,43 +78,24 @@ public class MicrometerContextService implements Service {
 
     private MicrometerContextService(Consumer<MicrometerContextService> consumer,
                                      Supplier<ExtensibleHttpManagement> extensibleHttpManagement,
-                                     Supplier<Boolean> securityEnabledSupplier) {
+                                     Supplier<Boolean> securityEnabledSupplier,
+                                     Supplier<MicrometerRegistries> registriesSupplier) {
         this.consumer = consumer;
         this.extensibleHttpManagement = extensibleHttpManagement;
         this.securityEnabledSupplier = securityEnabledSupplier;
-
-        registries.put(REGISTRY_TYPES.JVM,
-                ((Supplier<MeterRegistry>) () -> {
-                    final PrometheusMeterRegistry jvmRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
-                    new ClassLoaderMetrics().bindTo(jvmRegistry);
-                    new JvmMemoryMetrics().bindTo(jvmRegistry);
-                    new JvmGcMetrics().bindTo(jvmRegistry);
-                    new ProcessorMetrics().bindTo(jvmRegistry);
-                    new JvmThreadMetrics().bindTo(jvmRegistry);
-                    return jvmRegistry;
-                })
-                        .get());
-        registries.put(REGISTRY_TYPES.VENDOR, new PrometheusMeterRegistry(PrometheusConfig.DEFAULT));
-        registries.put(REGISTRY_TYPES.APP, new PrometheusMeterRegistry(PrometheusConfig.DEFAULT));
+        this.registriesSupplier = registriesSupplier;
     }
 
     @Override
     public void start(StartContext context) {
-        extensibleHttpManagement.get().addManagementHandler(CONTEXT_NAME, securityEnabledSupplier.get(), new HttpHandler() {
-            @Override
-            public void handleRequest(HttpServerExchange exchange) {
-                lock.readLock().lock();
-                try {
-                    StringBuilder sb = new StringBuilder();
-                    registries.values().forEach(r -> {
-                        if (r instanceof PrometheusMeterRegistry) {
-                            sb.append(((PrometheusMeterRegistry) r).scrape());
-                        }
-                    });
-                    exchange.getResponseSender().send(sb.toString());
-                } finally {
-                    lock.readLock().unlock();
-                }
+        extensibleHttpManagement.get().addManagementHandler(CONTEXT_NAME, securityEnabledSupplier.get(), exchange -> {
+            lock.readLock().lock();
+            try {
+                StringBuilder sb = new StringBuilder();
+                registriesSupplier.get().getRegistries().forEach(r -> sb.append(r.scrape()));
+                exchange.getResponseSender().send(sb.toString());
+            } finally {
+                lock.readLock().unlock();
             }
         });
         consumer.accept(this);
@@ -139,9 +105,5 @@ public class MicrometerContextService implements Service {
     public void stop(StopContext context) {
         extensibleHttpManagement.get().removeContext(CONTEXT_NAME);
         consumer.accept(null);
-    }
-
-    public MeterRegistry getApplicationMetricsRegistry() {
-        return registries.get(REGISTRY_TYPES.APP);
     }
 }

@@ -24,7 +24,7 @@ package org.wildfly.extras.micrometer.metrics;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.CLIENT_FACTORY_CAPABILITY;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MANAGEMENT_EXECUTOR;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.PROCESS_STATE_NOTIFIER;
-import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.WILDFLY_COLLECTOR;
+import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROMETER_COLLECTOR;
 
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
@@ -52,15 +52,15 @@ public class MetricsCollectorService implements Service<MetricCollector> {
     private MetricCollector metricCollector;
     private LocalModelControllerClient modelControllerClient;
 
-    static void install(OperationContext context) {
-        ServiceBuilder<?> serviceBuilder = context.getServiceTarget().addService(WILDFLY_COLLECTOR);
+    public static void install(OperationContext context) {
+        ServiceBuilder<?> serviceBuilder = context.getServiceTarget().addService(MICROMETER_COLLECTOR);
         Supplier<ModelControllerClientFactory> modelControllerClientFactory = serviceBuilder.requires(
                 context.getCapabilityServiceName(CLIENT_FACTORY_CAPABILITY, ModelControllerClientFactory.class));
         Supplier<Executor> managementExecutor = serviceBuilder.requires(
                 context.getCapabilityServiceName(MANAGEMENT_EXECUTOR, Executor.class));
         Supplier<ProcessStateNotifier> processStateNotifier = serviceBuilder.requires(
                 context.getCapabilityServiceName(PROCESS_STATE_NOTIFIER, ProcessStateNotifier.class));
-        Consumer<MetricCollector> metricCollectorConsumer = serviceBuilder.provides(WILDFLY_COLLECTOR);
+        Consumer<MetricCollector> metricCollectorConsumer = serviceBuilder.provides(MICROMETER_COLLECTOR);
         MetricsCollectorService service = new MetricsCollectorService(modelControllerClientFactory, managementExecutor, processStateNotifier, metricCollectorConsumer);
         serviceBuilder.setInstance(service)
                 .install();

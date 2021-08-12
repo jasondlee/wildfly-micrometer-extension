@@ -36,6 +36,8 @@
         <module name="io.undertow.core"/>
 
         <module name="java.logging"/>
+        <module name="java.desktop"/>
+
         <module name="javax.enterprise.api" />
         <module name="javax.ws.rs.api" services="import"/>
 
@@ -56,6 +58,7 @@
         <module name="org.jboss.weld.api"/>
         <module name="org.jboss.weld.core"/>
         <module name="org.jboss.weld.spi"/>
+
         <module name="org.wildfly.common"/>
         <module name="org.wildfly.security.elytron"/>
         <module name="org.wildfly.security.manager"/>
