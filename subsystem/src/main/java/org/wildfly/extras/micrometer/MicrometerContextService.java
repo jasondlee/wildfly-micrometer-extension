@@ -38,7 +38,7 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
 
 public class MicrometerContextService implements Service {
-    private static final String CONTEXT_NAME = "/micrometer";
+    public static final String CONTEXT = "/micrometer";
 
     private final Consumer<MicrometerContextService> consumer;
     private final Supplier<ExtensibleHttpManagement> extensibleHttpManagement;
@@ -88,7 +88,7 @@ public class MicrometerContextService implements Service {
 
     @Override
     public void start(StartContext context) {
-        extensibleHttpManagement.get().addManagementHandler(CONTEXT_NAME, securityEnabledSupplier.get(), exchange -> {
+        extensibleHttpManagement.get().addManagementHandler(CONTEXT, securityEnabledSupplier.get(), exchange -> {
             lock.readLock().lock();
             try {
                 StringBuilder sb = new StringBuilder();
@@ -103,7 +103,7 @@ public class MicrometerContextService implements Service {
 
     @Override
     public void stop(StopContext context) {
-        extensibleHttpManagement.get().removeContext(CONTEXT_NAME);
+        extensibleHttpManagement.get().removeContext(CONTEXT);
         consumer.accept(null);
     }
 }

@@ -16,11 +16,20 @@
 
 package org.wildfly.test.feature.pack.template.subsystem.sanity;
 
+import java.io.IOException;
+import java.net.URL;
+
 import javax.inject.Inject;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.as.arquillian.container.ManagementClient;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -33,9 +42,14 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Arquillian.class)
 public class SubsystemSanityTestCase {
+    @ArquillianResource
+    private ManagementClient managementClient;
 
     @Inject
     private MeterRegistry meterRegistry;
+
+    @Inject
+    private TestResource testResource;
 
     @Deployment
     public static WebArchive getDeployment() {
@@ -46,11 +60,39 @@ public class SubsystemSanityTestCase {
     }
 
     @Test
-    public void testAllOk() {
-        // Nothing much is happening here yet - we just check we can load the class
+    public void testInjection() {
         Assert.assertNotNull(meterRegistry);
-        Assert.assertNotEquals("Counter should not be zero.", 0,
-                meterRegistry.counter("fp_demo_counter").count());
+    }
+
+    @Test
+    public void testApplicationMetrics() {
+        testResource.getCount();
+
+        double counter = meterRegistry.counter(TestResource.COUNTER_NAME).count();
+        System.err.println("Counter = " + counter);
+        Assert.assertEquals("Counter should not be zero.", 1.0, counter, 0.0);
+    }
+
+    @Test
+    @RunAsClient
+    public void testMetricsEndpoint() {
+        try {
+            URL address = new URL("http",
+                    managementClient.getMgmtAddress(),
+                    managementClient.getMgmtPort(),
+                   "/micrometer");
+
+            Response response = new OkHttpClient()
+                    .newCall(new Request.Builder()
+                            .url(address)
+                            .build()
+                    ).execute();
+
+            Assert.assertEquals(200, response.code());
+            Assert.assertTrue(response.body().string().contains(TestResource.COUNTER_NAME));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 

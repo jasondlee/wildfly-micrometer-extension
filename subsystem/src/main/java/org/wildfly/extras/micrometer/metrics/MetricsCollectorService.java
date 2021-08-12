@@ -61,13 +61,16 @@ public class MetricsCollectorService implements Service<MetricCollector> {
         Supplier<ProcessStateNotifier> processStateNotifier = serviceBuilder.requires(
                 context.getCapabilityServiceName(PROCESS_STATE_NOTIFIER, ProcessStateNotifier.class));
         Consumer<MetricCollector> metricCollectorConsumer = serviceBuilder.provides(MICROMETER_COLLECTOR);
-        MetricsCollectorService service = new MetricsCollectorService(modelControllerClientFactory, managementExecutor, processStateNotifier, metricCollectorConsumer);
+        MetricsCollectorService service = new MetricsCollectorService(modelControllerClientFactory, managementExecutor,
+                processStateNotifier, metricCollectorConsumer);
         serviceBuilder.setInstance(service)
                 .install();
     }
 
-    MetricsCollectorService(Supplier<ModelControllerClientFactory> modelControllerClientFactory, Supplier<Executor> managementExecutor,
-                            Supplier<ProcessStateNotifier> processStateNotifier, Consumer<MetricCollector> metricCollectorConsumer) {
+    MetricsCollectorService(Supplier<ModelControllerClientFactory> modelControllerClientFactory,
+                            Supplier<Executor> managementExecutor,
+                            Supplier<ProcessStateNotifier> processStateNotifier,
+                            Consumer<MetricCollector> metricCollectorConsumer) {
         this.modelControllerClientFactory = modelControllerClientFactory;
         this.managementExecutor = managementExecutor;
         this.processStateNotifier = processStateNotifier;
@@ -76,7 +79,7 @@ public class MetricsCollectorService implements Service<MetricCollector> {
 
     @Override
     public void start(StartContext context) {
-        // [WFLY-11933] if RBAC is enabled, the local client does not have enough priviledges to read metrics
+        // [WFLY-11933] if RBAC is enabled, the local client does not have enough privileges to read metrics
         modelControllerClient = modelControllerClientFactory.get().createClient(managementExecutor.get());
 
         metricCollector = new MetricCollector(modelControllerClient, processStateNotifier.get());

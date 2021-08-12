@@ -28,6 +28,7 @@
     <artifactId>micrometer-testsuite-integration</artifactId>
     <name>Micrometer Galleon Feature Pack - Subsystem Integration Test Suite</name>
     <packaging>pom</packaging>
+
     <modules>
         <module>subsystem</module>
     </modules>
