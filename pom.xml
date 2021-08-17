@@ -100,11 +100,11 @@
     </repositories>
 
     <modules>
-        <module>build</module>
         <module>example</module>
         <module>feature-pack</module>
         <module>subsystem</module>
         <module>testsuite</module>
+        <module>build</module>
     </modules>
 
     <dependencyManagement>

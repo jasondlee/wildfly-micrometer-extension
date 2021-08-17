@@ -24,45 +24,49 @@ package org.wildfly.extras.micrometer.metrics;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.micrometer.core.instrument.Meter;
+
 public class MetricRegistration {
 
     private final List<Runnable> registrationTasks = new ArrayList<>();
-    private final List<MetricID> unregistrationTasks = new ArrayList<>();
-    private final MetricRegistry registry;
+    private final List<Meter.Id> unregistrationTasks = new ArrayList<>();
+    private final WildFlyRegistry registry;
 
-    public MetricRegistration(MetricRegistry registry) {
+    public MetricRegistration(WildFlyRegistry registry) {
         this.registry = registry;
     }
 
-    public void register() { // synchronized to avoid registering same thing twice. Shouldn't really be possible; just being cautious
+    public void register() {
+        // synchronized to avoid registering same thing twice. Shouldn't really be possible; just being cautious
         synchronized (registry) {
             for (Runnable task : registrationTasks) {
                 task.run();
             }
-            // This object will last until undeploy or server stop,
-            // so clean up and save memory
             registrationTasks.clear();
         }
     }
 
     public void unregister() {
         synchronized (registry) {
-            for (MetricID id : unregistrationTasks) {
-                registry.unregister(id);
+            for (Meter.Id id : unregistrationTasks) {
+                registry.remove(id);
             }
             unregistrationTasks.clear();
         }
     }
 
     public void registerMetric(WildFlyMetric metric, WildFlyMetricMetadata metadata) {
-        registry.registerMetric(metric, metadata);
+        switch (metadata.getType()) {
+            case GAUGE:
+                unregistrationTasks.add(registry.addGauge(metric, metadata).getId());
+                break;
+            case COUNTER:
+                unregistrationTasks.add(registry.addCounter(metric, metadata).getId());
+                break;
+        }
     }
 
     public synchronized void addRegistrationTask(Runnable task) {
         registrationTasks.add(task);
-    }
-
-    public void addUnregistrationTask(MetricID metricID) {
-        unregistrationTasks.add(metricID);
     }
 }

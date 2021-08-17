@@ -47,14 +47,19 @@ import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
+import org.wildfly.extras.micrometer.MicrometerRegistries;
 
 public class MetricCollector {
     private final LocalModelControllerClient modelControllerClient;
     private final ProcessStateNotifier processStateNotifier;
+    private final MicrometerRegistries micrometerRegistries;
 
-    public MetricCollector(LocalModelControllerClient modelControllerClient, ProcessStateNotifier processStateNotifier) {
+    public MetricCollector(LocalModelControllerClient modelControllerClient,
+                           ProcessStateNotifier processStateNotifier,
+                           MicrometerRegistries micrometerRegistries) {
         this.modelControllerClient = modelControllerClient;
         this.processStateNotifier = processStateNotifier;
+        this.micrometerRegistries = micrometerRegistries;
     }
 
     // collect metrics from the resources
@@ -64,13 +69,18 @@ public class MetricCollector {
                                                      boolean exposeAnySubsystem,
                                                      List<String> exposedSubsystems,
                                                      String prefix,
-                                                     MetricRegistration registration) {
+                                                     boolean applicationMetrics) {
+        MetricRegistration registration = new MetricRegistration(applicationMetrics ?
+                micrometerRegistries.getApplicationMetricsRegistry() :
+                micrometerRegistries.getVendorRegistry());
+
         collectResourceMetrics0(resource, managementResourceRegistration, EMPTY_ADDRESS, resourceAddressResolver, registration,
                 exposeAnySubsystem, exposedSubsystems, prefix);
         // Defer the actual registration until the server is running and they can be collected w/o errors
         PropertyChangeListener listener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
+                System.out.println("State change: " + evt.getNewValue());
                 if (ControlledProcessState.State.RUNNING == evt.getNewValue()) {
                     registration.register();
                 } else if (ControlledProcessState.State.STOPPING == evt.getNewValue()) {
@@ -129,7 +139,6 @@ public class MetricCollector {
                     attributeDescription, unit, isCounter ? COUNTER : GAUGE);
 
             registration.addRegistrationTask(() -> registration.registerMetric(metric, metadata));
-            registration.addUnregistrationTask(metadata.getMetricID());
         }
 
         for (String type : current.getChildTypes()) {

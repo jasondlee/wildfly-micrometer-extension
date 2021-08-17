@@ -31,14 +31,12 @@ import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 public class MicrometerSubsystemDeploymentProcessor implements DeploymentUnitProcessor {
     private final boolean exposeAnySubsystem;
     private final List<String> exposedSubsystems;
-    private final String prefix;
 
     private ManagementResourceRegistration managementResourceRegistration;
 
-    public MicrometerSubsystemDeploymentProcessor(boolean exposeAnySubsystem, List<String> exposedSubsystems, String prefix) {
+    public MicrometerSubsystemDeploymentProcessor(boolean exposeAnySubsystem, List<String> exposedSubsystems) {
         this.exposeAnySubsystem = exposeAnySubsystem;
         this.exposedSubsystems = exposedSubsystems;
-        this.prefix = prefix;
     }
 
     @Override
@@ -49,7 +47,7 @@ public class MicrometerSubsystemDeploymentProcessor implements DeploymentUnitPro
                 deploymentPhaseContext,
                 deploymentUnit.getAttachment(DeploymentModelUtils.DEPLOYMENT_RESOURCE),
                 deploymentUnit.getAttachment(DeploymentModelUtils.MUTABLE_REGISTRATION_ATTACHMENT),
-                exposeAnySubsystem, exposedSubsystems, prefix);
+                exposeAnySubsystem, exposedSubsystems);
     }
 
     @Override

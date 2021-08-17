@@ -1,6 +1,5 @@
 package org.wildfly.extras.micrometer;
 
-import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROMETER_REGISTRIES;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROMETER_REGISTRY_RUNTIME_CAPABILITY;
 
 import java.util.function.Consumer;
@@ -20,7 +19,9 @@ public class MicrometerRegistriesService implements Service {
         ServiceBuilder<?> serviceBuilder = context.getServiceTarget()
                 .addService(MICROMETER_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
 
-        serviceBuilder.setInstance(new MicrometerRegistriesService(serviceBuilder.provides(MICROMETER_REGISTRIES)))
+        Consumer<MicrometerRegistries> consumer = serviceBuilder.provides(MICROMETER_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
+        MicrometerRegistriesService service = new MicrometerRegistriesService(consumer);
+        serviceBuilder.setInstance(service)
                 .install();
     }
 

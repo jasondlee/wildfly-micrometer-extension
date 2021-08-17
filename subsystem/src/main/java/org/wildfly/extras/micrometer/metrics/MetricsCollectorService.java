@@ -23,6 +23,7 @@ package org.wildfly.extras.micrometer.metrics;
 
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.CLIENT_FACTORY_CAPABILITY;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MANAGEMENT_EXECUTOR;
+import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROMETER_REGISTRY_RUNTIME_CAPABILITY;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.PROCESS_STATE_NOTIFIER;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROMETER_COLLECTOR;
 
@@ -38,6 +39,7 @@ import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
+import org.wildfly.extras.micrometer.MicrometerRegistries;
 
 /**
  * Service to create a metric collector
@@ -47,6 +49,7 @@ public class MetricsCollectorService implements Service<MetricCollector> {
     private final Supplier<ModelControllerClientFactory> modelControllerClientFactory;
     private final Supplier<Executor> managementExecutor;
     private final Supplier<ProcessStateNotifier> processStateNotifier;
+    private final Supplier<MicrometerRegistries> registriesSupplier;
     private Consumer<MetricCollector> metricCollectorConsumer;
 
     private MetricCollector metricCollector;
@@ -60,9 +63,10 @@ public class MetricsCollectorService implements Service<MetricCollector> {
                 context.getCapabilityServiceName(MANAGEMENT_EXECUTOR, Executor.class));
         Supplier<ProcessStateNotifier> processStateNotifier = serviceBuilder.requires(
                 context.getCapabilityServiceName(PROCESS_STATE_NOTIFIER, ProcessStateNotifier.class));
+        Supplier<MicrometerRegistries> registriesSupplier = serviceBuilder.requires(MICROMETER_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
         Consumer<MetricCollector> metricCollectorConsumer = serviceBuilder.provides(MICROMETER_COLLECTOR);
         MetricsCollectorService service = new MetricsCollectorService(modelControllerClientFactory, managementExecutor,
-                processStateNotifier, metricCollectorConsumer);
+                processStateNotifier, registriesSupplier, metricCollectorConsumer);
         serviceBuilder.setInstance(service)
                 .install();
     }
@@ -70,10 +74,12 @@ public class MetricsCollectorService implements Service<MetricCollector> {
     MetricsCollectorService(Supplier<ModelControllerClientFactory> modelControllerClientFactory,
                             Supplier<Executor> managementExecutor,
                             Supplier<ProcessStateNotifier> processStateNotifier,
+                            Supplier<MicrometerRegistries> registriesSupplier,
                             Consumer<MetricCollector> metricCollectorConsumer) {
         this.modelControllerClientFactory = modelControllerClientFactory;
         this.managementExecutor = managementExecutor;
         this.processStateNotifier = processStateNotifier;
+        this.registriesSupplier = registriesSupplier;
         this.metricCollectorConsumer = metricCollectorConsumer;
     }
 
@@ -82,7 +88,8 @@ public class MetricsCollectorService implements Service<MetricCollector> {
         // [WFLY-11933] if RBAC is enabled, the local client does not have enough privileges to read metrics
         modelControllerClient = modelControllerClientFactory.get().createClient(managementExecutor.get());
 
-        metricCollector = new MetricCollector(modelControllerClient, processStateNotifier.get());
+        metricCollector = new MetricCollector(modelControllerClient, processStateNotifier.get(),
+                registriesSupplier.get());
 
         metricCollectorConsumer.accept(metricCollector);
     }
