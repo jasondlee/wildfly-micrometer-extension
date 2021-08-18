@@ -42,11 +42,15 @@ public class WildFlyMetric implements Metric {
     private static final ModelNode UNDEFINED = new ModelNode();
 
     private LocalModelControllerClient modelControllerClient;
-    private final PathAddress address;
-    private final String attributeName;
+    private PathAddress address;
+    private String attributeName;
 
     static {
         UNDEFINED.protect();
+    }
+
+    public WildFlyMetric() {
+
     }
 
     public WildFlyMetric(LocalModelControllerClient modelControllerClient, PathAddress address, String attributeName) {

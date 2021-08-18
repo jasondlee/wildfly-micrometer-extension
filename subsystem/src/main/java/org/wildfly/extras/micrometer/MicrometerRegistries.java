@@ -32,8 +32,12 @@ public class MicrometerRegistries {
         return Collections.unmodifiableList(Arrays.asList(applicationRegistry, jvmRegistry, vendorRegistry));
     }
 
-    public WildFlyRegistry getApplicationMetricsRegistry() {
+    public WildFlyRegistry getApplicationRegistry() {
         return applicationRegistry;
+    }
+
+    public WildFlyRegistry getJvmRegistry() {
+        return jvmRegistry;
     }
 
     public WildFlyRegistry getVendorRegistry() {

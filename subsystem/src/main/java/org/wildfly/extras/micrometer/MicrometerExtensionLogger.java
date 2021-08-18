@@ -19,8 +19,11 @@
 
 package org.wildfly.extras.micrometer;
 
+import static org.jboss.logging.Logger.Level.ERROR;
 import static org.jboss.logging.Logger.Level.INFO;
 import static org.jboss.logging.Logger.Level.WARN;
+
+import java.io.IOException;
 
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
@@ -58,4 +61,14 @@ public interface MicrometerExtensionLogger extends BasicLogger {
     @LogMessage(level = WARN)
     @Message(id = 6, value = "Unable to convert attribute %s on %s to Double value.")
     void unableToConvertAttribute(String attributeName, PathAddress address, @Cause Exception exception);
+
+    @LogMessage(level = ERROR)
+    @Message(id = 7, value = "Malformed name.")
+    void malformedName(@Cause Exception exception);
+
+    @Message(id = 8, value = "Failed to initialize metrics from JMX MBeans")
+    IllegalArgumentException failedInitializeJMXRegistrar(@Cause IOException e);
+
+    @Message(id = 9, value = "An unsupported metric type was found: %s")
+    IllegalArgumentException unsupportedMetricType(String type);
 }

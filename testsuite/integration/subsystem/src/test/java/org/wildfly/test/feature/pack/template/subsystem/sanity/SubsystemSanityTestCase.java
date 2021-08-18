@@ -69,7 +69,6 @@ public class SubsystemSanityTestCase {
         testResource.getCount();
 
         double counter = meterRegistry.counter(TestResource.COUNTER_NAME).count();
-        System.err.println("Counter = " + counter);
         Assert.assertEquals("Counter should not be zero.", 1.0, counter, 0.0);
     }
 

@@ -29,7 +29,6 @@ import org.jboss.msc.Service;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceTarget;
 import org.jboss.msc.service.StartContext;
-import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.wildfly.extras.micrometer.MicrometerCdiExtension;
 import org.wildfly.extras.micrometer.MicrometerRegistries;
@@ -122,7 +121,17 @@ public class MicrometerDeploymentService implements Service {
     }
 
     @Override
-    public void start(StartContext context) throws StartException {
+    public void start(StartContext context) {
+        metricCollector.get()
+                .collectResourceMetrics(rootResource,
+                        managementResourceRegistration,
+                        // prepend the deployment address to the subsystem resource address
+                        address -> deploymentAddress.append(address),
+                        exposeAnySubsystem,
+                        exposedSubsystems,
+                        "wildfly", //deploymentUnit.getName(),
+                        true);
+
         setupMicrometerCdiBeans();
 
     }
@@ -141,7 +150,7 @@ public class MicrometerDeploymentService implements Service {
 
             // We may run into naming conflicts with this. How to solve?
             MicrometerCdiExtension.registerApplicationRegistry(moduleCL,
-                    registriesSupplier.get().getApplicationMetricsRegistry());
+                    registriesSupplier.get().getApplicationRegistry());
         } finally {
             WildFlySecurityManager.setCurrentContextClassLoaderPrivileged(initialCl);
         }

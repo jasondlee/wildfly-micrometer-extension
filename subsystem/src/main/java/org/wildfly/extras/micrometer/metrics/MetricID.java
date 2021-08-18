@@ -44,6 +44,7 @@ public class MetricID implements Comparable<MetricID> {
     public String getMetricName() {
         return metricName;
     }
+
     public WildFlyMetricMetadata.MetricTag[] getTags() {
         return metricTags;
     }

@@ -71,6 +71,7 @@ public class MicrometerSubsystemDefinition extends PersistentResourceDefinition 
             .build();
 
     static final StringListAttributeDefinition EXPOSED_SUBSYSTEMS = new StringListAttributeDefinition.Builder("exposed-subsystems")
+            .setDefaultValue(new ModelNode().add("*"))
             .setRequired(false)
             .setRestartAllServices()
             .build();

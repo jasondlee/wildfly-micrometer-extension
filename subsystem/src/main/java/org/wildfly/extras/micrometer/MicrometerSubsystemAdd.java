@@ -59,7 +59,7 @@ public class MicrometerSubsystemAdd extends AbstractBoottimeAddStepHandler {
         super.performBoottime(context, operation, model);
 
         List<String> exposedSubsystems = MicrometerSubsystemDefinition.EXPOSED_SUBSYSTEMS.unwrap(context, model);
-        boolean exposeAnySubsystem = true; //exposedSubsystems.remove("*");
+        boolean exposeAnySubsystem = exposedSubsystems.remove("*");
 //        String prefix = MicrometerSubsystemDefinition.PREFIX.resolveModelAttribute(context, model).asStringOrNull();
         boolean securityEnabled = MicrometerSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model).asBoolean();
 

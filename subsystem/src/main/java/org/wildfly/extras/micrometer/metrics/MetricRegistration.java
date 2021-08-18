@@ -56,14 +56,7 @@ public class MetricRegistration {
     }
 
     public void registerMetric(WildFlyMetric metric, WildFlyMetricMetadata metadata) {
-        switch (metadata.getType()) {
-            case GAUGE:
-                unregistrationTasks.add(registry.addGauge(metric, metadata).getId());
-                break;
-            case COUNTER:
-                unregistrationTasks.add(registry.addCounter(metric, metadata).getId());
-                break;
-        }
+        unregistrationTasks.add(registry.addMetric(metric, metadata).getId());
     }
 
     public synchronized void addRegistrationTask(Runnable task) {

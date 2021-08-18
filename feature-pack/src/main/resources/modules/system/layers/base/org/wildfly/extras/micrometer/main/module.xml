@@ -37,6 +37,7 @@
 
         <module name="java.logging"/>
         <module name="java.desktop"/>
+        <module name="java.management"/>
 
         <module name="javax.enterprise.api" />
         <module name="javax.ws.rs.api" services="import"/>

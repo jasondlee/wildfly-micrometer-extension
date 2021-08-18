@@ -47,7 +47,8 @@ public class MicrometerSubsystemDeploymentProcessor implements DeploymentUnitPro
                 deploymentPhaseContext,
                 deploymentUnit.getAttachment(DeploymentModelUtils.DEPLOYMENT_RESOURCE),
                 deploymentUnit.getAttachment(DeploymentModelUtils.MUTABLE_REGISTRATION_ATTACHMENT),
-                exposeAnySubsystem, exposedSubsystems);
+                exposeAnySubsystem,
+                exposedSubsystems);
     }
 
     @Override

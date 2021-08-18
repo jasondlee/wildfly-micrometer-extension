@@ -71,7 +71,7 @@ public class MetricCollector {
                                                      String prefix,
                                                      boolean applicationMetrics) {
         MetricRegistration registration = new MetricRegistration(applicationMetrics ?
-                micrometerRegistries.getApplicationMetricsRegistry() :
+                micrometerRegistries.getApplicationRegistry() :
                 micrometerRegistries.getVendorRegistry());
 
         collectResourceMetrics0(resource, managementResourceRegistration, EMPTY_ADDRESS, resourceAddressResolver, registration,
@@ -80,7 +80,6 @@ public class MetricCollector {
         PropertyChangeListener listener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                System.out.println("State change: " + evt.getNewValue());
                 if (ControlledProcessState.State.RUNNING == evt.getNewValue()) {
                     registration.register();
                 } else if (ControlledProcessState.State.STOPPING == evt.getNewValue()) {
@@ -179,11 +178,9 @@ public class MetricCollector {
                 && attributeAccess.getStorageType() == AttributeAccess.Storage.RUNTIME) {
             // handle only metrics with simple numerical types
             ModelType type = attributeAccess.getAttributeDefinition().getType();
-            if (type == ModelType.INT ||
+            return type == ModelType.INT ||
                     type == ModelType.LONG ||
-                    type == ModelType.DOUBLE) {
-                return true;
-            }
+                    type == ModelType.DOUBLE;
         }
         return false;
     }
