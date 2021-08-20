@@ -74,8 +74,8 @@ public class MetricCollector {
                 micrometerRegistries.getApplicationRegistry() :
                 micrometerRegistries.getVendorRegistry());
 
-        collectResourceMetrics0(resource, managementResourceRegistration, EMPTY_ADDRESS, resourceAddressResolver, registration,
-                exposeAnySubsystem, exposedSubsystems, prefix);
+        collectResourceMetrics0(resource, managementResourceRegistration, EMPTY_ADDRESS, resourceAddressResolver,
+                registration, exposeAnySubsystem, exposedSubsystems, prefix);
         // Defer the actual registration until the server is running and they can be collected w/o errors
         PropertyChangeListener listener = new PropertyChangeListener() {
             @Override
@@ -144,7 +144,8 @@ public class MetricCollector {
             for (Resource.ResourceEntry entry : current.getChildren(type)) {
                 final PathElement pathElement = entry.getPathElement();
                 final PathAddress childAddress = address.append(pathElement);
-                collectResourceMetrics0(entry, managementResourceRegistration, childAddress, resourceAddressResolver, registration, exposeAnySubsystem, exposedSubsystems, prefix);
+                collectResourceMetrics0(entry, managementResourceRegistration, childAddress, resourceAddressResolver,
+                        registration, exposeAnySubsystem, exposedSubsystems, prefix);
             }
         }
     }

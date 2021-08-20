@@ -30,24 +30,22 @@ public class WildFlyRegistry extends PrometheusMeterRegistry {
         }
     }
 
-    public Meter addCounter(WildFlyMetric metric, MetricMetadata metadata) {
-
-        Meter.Id id = new Meter.Id(metadata.getMetricName(),
-                Tags.of(getTags(metadata)),
-                getBaseUnit(metadata),
-                metadata.getDescription(),
-                Meter.Type.COUNTER);
-        return newFunctionCounter(id, metric, value -> getMetricValue(metric, metadata));
+    private Meter addCounter(WildFlyMetric metric, MetricMetadata metadata) {
+        return newFunctionCounter(generateMetricId(metadata, Meter.Type.COUNTER), metric,
+                value -> getMetricValue(metric, metadata));
     }
 
-    public Meter addGauge(WildFlyMetric metric, MetricMetadata metadata) {
-        Meter.Id id = new Meter.Id(metadata.getMetricName(),
+    private Meter addGauge(WildFlyMetric metric, MetricMetadata metadata) {
+        return newGauge(generateMetricId(metadata, Meter.Type.GAUGE),
+                metric, value -> getMetricValue(metric, metadata));
+    }
+
+    private Meter.Id generateMetricId(MetricMetadata metadata, Meter.Type gauge) {
+        return new Meter.Id(metadata.getMetricName(),
                 Tags.of(getTags(metadata)),
                 getBaseUnit(metadata),
                 metadata.getDescription(),
-                Meter.Type.GAUGE);
-
-        return newGauge(id, metric, value -> getMetricValue(metric, metadata));
+                gauge);
     }
 
     private double getMetricValue(WildFlyMetric metric, MetricMetadata metadata) {

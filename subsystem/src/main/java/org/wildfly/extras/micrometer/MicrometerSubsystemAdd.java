@@ -33,8 +33,6 @@ import java.util.function.Function;
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
-import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.server.AbstractDeploymentChainStep;
 import org.jboss.as.server.DeploymentProcessorTarget;
 import org.jboss.dmr.ModelNode;
@@ -60,7 +58,8 @@ public class MicrometerSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
         List<String> exposedSubsystems = MicrometerSubsystemDefinition.EXPOSED_SUBSYSTEMS.unwrap(context, model);
         boolean exposeAnySubsystem = exposedSubsystems.remove("*");
-//        String prefix = MicrometerSubsystemDefinition.PREFIX.resolveModelAttribute(context, model).asStringOrNull();
+        String prefix = MicrometerSubsystemDefinition.PREFIX.resolveModelAttribute(context, model)
+                .asStringOrNull();
         boolean securityEnabled = MicrometerSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model).asBoolean();
 
         MicrometerRegistriesService.install(context, securityEnabled);
@@ -72,7 +71,7 @@ public class MicrometerSubsystemAdd extends AbstractBoottimeAddStepHandler {
                 processorTarget.addDeploymentProcessor(SUBSYSTEM_NAME, DEPENDENCIES, 0x1910,
                         new MicrometerDependencyProcessor());
                 processorTarget.addDeploymentProcessor(SUBSYSTEM_NAME, POST_MODULE, 0x3810,
-                        new MicrometerSubsystemDeploymentProcessor(exposeAnySubsystem, exposedSubsystems));
+                        new MicrometerSubsystemDeploymentProcessor(exposeAnySubsystem, exposedSubsystems, prefix));
             }
         }, RUNTIME);
 
@@ -80,11 +79,10 @@ public class MicrometerSubsystemAdd extends AbstractBoottimeAddStepHandler {
             ServiceController<?> serviceController = context.getServiceRegistry(false).getService(MICROMETER_COLLECTOR);
             MetricCollector metricCollector = MetricCollector.class.cast(serviceController.getValue());
 
-            ImmutableManagementResourceRegistration rootResourceRegistration = context.getRootResourceRegistration();
-            Resource rootResource = context.readResourceFromRoot(EMPTY_ADDRESS);
-
-            metricCollector.collectResourceMetrics(rootResource, rootResourceRegistration, Function.identity(),
-                    exposeAnySubsystem, exposedSubsystems, "wildfly", false);
+            metricCollector.collectResourceMetrics(context.readResourceFromRoot(EMPTY_ADDRESS),
+                    context.getRootResourceRegistration(),
+                    Function.identity(),
+                    exposeAnySubsystem, exposedSubsystems, prefix, false);
         }, VERIFY);
 
         MicrometerExtensionLogger.MICROMETER_LOGGER.activatingSubsystem();

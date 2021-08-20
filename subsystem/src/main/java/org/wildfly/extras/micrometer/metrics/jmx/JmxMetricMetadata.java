@@ -37,7 +37,13 @@ class JmxMetricMetadata implements MetricMetadata {
     private List<String> tagsToFill;
     private List<MetricTag> tags;
 
-    JmxMetricMetadata(String name, String description, MeasurementUnit unit, Type type, String mbean, List<String> tagsToFill, List<MetricTag> tags) {
+    JmxMetricMetadata(String name,
+                      String description,
+                      MeasurementUnit unit,
+                      Type type,
+                      String mbean,
+                      List<String> tagsToFill,
+                      List<MetricTag> tags) {
         this.name = name;
         this.description = description;
         this.unit = unit;

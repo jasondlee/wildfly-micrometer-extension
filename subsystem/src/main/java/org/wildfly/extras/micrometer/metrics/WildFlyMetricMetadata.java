@@ -37,8 +37,8 @@ import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.client.helpers.MeasurementUnit;
 
 public class WildFlyMetricMetadata implements MetricMetadata {
-
     private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("(?<=[a-z])[A-Z]");
+    private static final String STATISTICS = "statistics";
 
     private final String description;
     private final MeasurementUnit unit;
@@ -63,15 +63,16 @@ public class WildFlyMetricMetadata implements MetricMetadata {
     }
 
     private void init() {
-        String metricPrefix = "";
+        StringBuilder metricPrefix = new StringBuilder();
         List<String> labelNames = new ArrayList<>();
         List<String> labelValues = new ArrayList<>();
         for (PathElement element : address) {
             String key = element.getKey();
             String value = element.getValue();
             // prepend the subsystem or statistics name to the attribute
-            if (key.equals(SUBSYSTEM) || key.equals("statistics")) {
-                metricPrefix += value + "-";
+            if (key.equals(SUBSYSTEM) || key.equals(STATISTICS)) {
+                metricPrefix.append(value)
+                        .append("-");
                 continue;
             }
             if (!key.equals(DEPLOYMENT) && !key.equals(SUBDEPLOYMENT)) {
@@ -81,7 +82,7 @@ public class WildFlyMetricMetadata implements MetricMetadata {
                 labelNames.add("name");
                 labelValues.add(value);
             } else {
-                labelNames.add(getPrometheusMetricName(key));
+                labelNames.add(getDottedName(key));
                 labelValues.add(value);
             }
         }
@@ -90,16 +91,15 @@ public class WildFlyMetricMetadata implements MetricMetadata {
             labelNames.add(SUBDEPLOYMENT);
             labelValues.add(labelValues.get(labelNames.indexOf(DEPLOYMENT)));
         }
+
         if (globalPrefix != null && !globalPrefix.isEmpty()) {
-            metricPrefix = globalPrefix + "-" + metricPrefix;
+            metricPrefix.insert(0, globalPrefix + "-");
         }
 
-        metricName = getPrometheusMetricName(metricPrefix + attributeName);
+        metricName = getDottedName(metricPrefix + attributeName);
         tags = new MetricTag[labelNames.size()];
         for (int i = 0; i < labelNames.size(); i++) {
-            String name = labelNames.get(i);
-            String value = labelValues.get(i);
-            tags[i] = new MetricTag(name, value);
+            tags[i] = new MetricTag(labelNames.get(i), labelValues.get(i));
         }
         metricID = new MetricID(metricName, tags);
     }
@@ -134,10 +134,8 @@ public class WildFlyMetricMetadata implements MetricMetadata {
         return metricID;
     }
 
-    static String getPrometheusMetricName(String name) {
-        name = name.replaceAll("[^\\w]+", "_");
-        name = decamelize(name);
-        return name;
+    private static String getDottedName(String name) {
+        return decamelize(name.replaceAll("[^\\w]+", "."));
     }
 
 
@@ -145,7 +143,7 @@ public class WildFlyMetricMetadata implements MetricMetadata {
         Matcher m = SNAKE_CASE_PATTERN.matcher(in);
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
-            m.appendReplacement(sb, "_" + m.group().toLowerCase());
+            m.appendReplacement(sb, "." + m.group().toLowerCase());
         }
         m.appendTail(sb);
         return sb.toString().toLowerCase();
@@ -153,7 +151,7 @@ public class WildFlyMetricMetadata implements MetricMetadata {
 
     @Override
     public String toString() {
-        return ("(Micrometer) WildFlyMetricMetadata{" +
+        return ("WildFlyMetricMetadata{" +
                 "description='" + description + '\'' +
                 ", unit=" + unit +
                 ", type=" + type +

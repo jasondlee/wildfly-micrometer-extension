@@ -45,13 +45,15 @@ public class MicrometerDeploymentService implements Service {
     private final Supplier<MicrometerRegistries> registriesSupplier;
     private final boolean exposeAnySubsystem;
     private final List<String> exposedSubsystems;
+    private final String prefix;
 
     public static void install(ServiceTarget serviceTarget,
                                DeploymentPhaseContext deploymentPhaseContext,
                                Resource rootResource,
                                ManagementResourceRegistration managementResourceRegistration,
                                boolean exposeAnySubsystem,
-                               List<String> exposedSubsystems) throws DeploymentUnitProcessingException {
+                               List<String> exposedSubsystems,
+                               String prefix) throws DeploymentUnitProcessingException {
         MICROMETER_LOGGER.processingDeployment();
 
         final DeploymentUnit deploymentUnit = deploymentPhaseContext.getDeploymentUnit();
@@ -88,7 +90,7 @@ public class MicrometerDeploymentService implements Service {
         sb.requires(DeploymentCompleteServiceProcessor.serviceName(deploymentUnit.getServiceName()));
         sb.setInstance(new MicrometerDeploymentService(rootResource, managementResourceRegistration, deploymentAddress,
                         deploymentUnit, metricCollectorSupplier, managementExecutorSupplier, registriesSupplier,
-                        exposeAnySubsystem, exposedSubsystems))
+                        exposeAnySubsystem, exposedSubsystems, prefix))
                 .install();
     }
 
@@ -100,7 +102,8 @@ public class MicrometerDeploymentService implements Service {
                                        Supplier<Executor> managementExecutorSupplier,
                                        Supplier<MicrometerRegistries> registriesSupplier,
                                        boolean exposeAnySubsystem,
-                                       List<String> exposedSubsystems) {
+                                       List<String> exposedSubsystems,
+                                       String prefix) {
         this.rootResource = rootResource;
         this.managementResourceRegistration = managementResourceRegistration;
         this.deploymentAddress = deploymentAddress;
@@ -110,6 +113,7 @@ public class MicrometerDeploymentService implements Service {
         this.registriesSupplier = registriesSupplier;
         this.exposeAnySubsystem = exposeAnySubsystem;
         this.exposedSubsystems = exposedSubsystems;
+        this.prefix = prefix;
     }
 
     private static PathAddress createDeploymentAddressPrefix(DeploymentUnit deploymentUnit) {
@@ -129,7 +133,7 @@ public class MicrometerDeploymentService implements Service {
                         address -> deploymentAddress.append(address),
                         exposeAnySubsystem,
                         exposedSubsystems,
-                        "wildfly", //deploymentUnit.getName(),
+                        prefix, //deploymentUnit.getName(),
                         true);
 
         setupMicrometerCdiBeans();
