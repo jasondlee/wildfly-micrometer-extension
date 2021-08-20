@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
-import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
@@ -17,6 +16,7 @@ import org.wildfly.extras.micrometer.MicrometerExtensionLogger;
 public class WildFlyRegistry extends PrometheusMeterRegistry {
     public WildFlyRegistry() {
         super(PrometheusConfig.DEFAULT);
+        this.throwExceptionOnRegistrationFailure();
     }
 
     public Meter addMetric(WildFlyMetric metric, MetricMetadata metadata) {
@@ -34,8 +34,6 @@ public class WildFlyRegistry extends PrometheusMeterRegistry {
 
         Meter.Id id = new Meter.Id(metadata.getMetricName(),
                 Tags.of(getTags(metadata)),
-                // spec violation?
-                // https://prometheus.io/docs/practices/naming/
                 getBaseUnit(metadata),
                 metadata.getDescription(),
                 Meter.Type.COUNTER);
@@ -43,15 +41,16 @@ public class WildFlyRegistry extends PrometheusMeterRegistry {
     }
 
     public Meter addGauge(WildFlyMetric metric, MetricMetadata metadata) {
-        return Gauge.builder(metadata.getMetricName(), () -> getMetricValue(metric, metadata))
-                .description(metadata.getDescription())
-                .tags(getTags(metadata))
-                .baseUnit(getBaseUnit(metadata))
-                .register(this);
+        Meter.Id id = new Meter.Id(metadata.getMetricName(),
+                Tags.of(getTags(metadata)),
+                getBaseUnit(metadata),
+                metadata.getDescription(),
+                Meter.Type.GAUGE);
+
+        return newGauge(id, metric, value -> getMetricValue(metric, metadata));
     }
 
     private double getMetricValue(WildFlyMetric metric, MetricMetadata metadata) {
-//        System.out.println("***** Returning value for " + metadata.getMetricName());
         OptionalDouble metricValue = metric.getValue();
         return metricValue.isPresent() ?
                 scaleToBaseUnit(metricValue.getAsDouble(), metadata.getMeasurementUnit()) :

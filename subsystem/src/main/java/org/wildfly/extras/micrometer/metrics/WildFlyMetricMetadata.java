@@ -27,6 +27,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUB
 import static org.wildfly.common.Assert.checkNotNullParamWithNullPointerException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -65,7 +66,7 @@ public class WildFlyMetricMetadata implements MetricMetadata {
         String metricPrefix = "";
         List<String> labelNames = new ArrayList<>();
         List<String> labelValues = new ArrayList<>();
-        for (PathElement element: address) {
+        for (PathElement element : address) {
             String key = element.getKey();
             String value = element.getValue();
             // prepend the subsystem or statistics name to the attribute
@@ -73,11 +74,19 @@ public class WildFlyMetricMetadata implements MetricMetadata {
                 metricPrefix += value + "-";
                 continue;
             }
-            labelNames.add(getPrometheusMetricName(key));
-            labelValues.add(value);
+            if (!key.equals(DEPLOYMENT) && !key.equals(SUBDEPLOYMENT)) {
+                labelNames.add("type");
+                labelValues.add(key);
+
+                labelNames.add("name");
+                labelValues.add(value);
+            } else {
+                labelNames.add(getPrometheusMetricName(key));
+                labelValues.add(value);
+            }
         }
         // if the resource address defines a deployment (without subdeployment),
-        if (labelNames.contains(DEPLOYMENT)  && !labelNames.contains(SUBDEPLOYMENT)) {
+        if (labelNames.contains(DEPLOYMENT) && !labelNames.contains(SUBDEPLOYMENT)) {
             labelNames.add(SUBDEPLOYMENT);
             labelValues.add(labelValues.get(labelNames.indexOf(DEPLOYMENT)));
         }
@@ -126,7 +135,7 @@ public class WildFlyMetricMetadata implements MetricMetadata {
     }
 
     static String getPrometheusMetricName(String name) {
-        name =name.replaceAll("[^\\w]+","_");
+        name = name.replaceAll("[^\\w]+", "_");
         name = decamelize(name);
         return name;
     }
@@ -140,5 +149,20 @@ public class WildFlyMetricMetadata implements MetricMetadata {
         }
         m.appendTail(sb);
         return sb.toString().toLowerCase();
+    }
+
+    @Override
+    public String toString() {
+        return ("(Micrometer) WildFlyMetricMetadata{" +
+                "description='" + description + '\'' +
+                ", unit=" + unit +
+                ", type=" + type +
+                ", attributeName='" + attributeName + '\'' +
+                ", address=" + address +
+                ", globalPrefix='" + globalPrefix + '\'' +
+                ", metricName='" + metricName + '\'' +
+                ", tags=" + Arrays.toString(tags) +
+                ", metricID=" + metricID +
+                '}').replaceAll("\\\n", "");
     }
 }

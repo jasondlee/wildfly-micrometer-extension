@@ -121,5 +121,13 @@ public interface MetricMetadata {
         public String getValue() {
             return value;
         }
+
+        @Override
+        public String toString() {
+            return "MetricTag{" +
+                    "key='" + key + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
+        }
     }
 }

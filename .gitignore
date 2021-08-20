@@ -63,3 +63,7 @@ client/shade/dependency-reduced-pom.xml
 **/.zanata-cache/
 
 wildfly/
+
+getmetrics.sh
+
+server.sh
