@@ -96,8 +96,7 @@
                                         <layer>jaxrs</layer>
                                         <layer>management</layer>
                                         <!-- Layers from this FP  -->
-                                        <!-- TODO - rename to what you have called your layer -->
-                                        <layer>micrometer-layer</layer>
+                                        <layer>micrometer</layer>
                                     </layers>
                                 </config>
                             </configurations>

@@ -45,7 +45,6 @@ If you want to use a Galleon 'universe' (see the Galleon documentation) you coul
     <generate-feature-specs>
         <extensions>
             <standalone>
-                <!-- TODO Use the name of the module implementing your subsystem -->
                 <extension>org.wildfly.extras.micrometer</extension>
             </standalone>
         </extensions>

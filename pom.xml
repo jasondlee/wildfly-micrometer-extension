@@ -22,13 +22,14 @@
         <artifactId>jboss-parent</artifactId>
         <version>38</version>
     </parent>
+
     <groupId>org.wildfly.extras</groupId>
     <artifactId>micrometer-feature-pack-parent</artifactId>
     <version>1.0.0.Alpha-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Micrometer Galleon Feature Pack - Parent</name>
 
-    <description>WildFly Galleon Pack Template</description>
+    <description>WildFly Micrometer Feature Pack</description>
 
     <licenses>
         <license>
@@ -37,19 +38,17 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
     <properties>
-        <!-- https://access.redhat.com/maven-repository - this is needed for the picketlink dependency -->
         <galleon.fork.embedded>true</galleon.fork.embedded>
         <galleon.log.time>true</galleon.log.time>
         <galleon.wildfly.home>/tmp</galleon.wildfly.home>
         <linkXRef>false</linkXRef>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <maven.redhat.repository.url>${maven.repository.protocol}://maven.repository.redhat.com/ga/
-        </maven.redhat.repository.url>
+        <maven.redhat.repository.url>${maven.repository.protocol}://maven.repository.redhat.com/ga/</maven.redhat.repository.url>
         <maven.repository.protocol>https</maven.repository.protocol>
-        <maven.repository.url>${maven.repository.protocol}://repository.jboss.org/nexus/content/groups/public/
-        </maven.repository.url>
+        <maven.repository.url>${maven.repository.protocol}://repository.jboss.org/nexus/content/groups/public/</maven.repository.url>
         <server.name>wildfly-${version.org.wildfly}-micrometer-${project.version}</server.name>
         <version.io.micrometer>1.7.2</version.io.micrometer>
         <version.io.prometheus>0.10.0</version.io.prometheus>
@@ -62,12 +61,11 @@
         <version.org.wildfly.galleon-plugins>4.2.8.Final</version.org.wildfly.galleon-plugins>
         <version.org.wildfly>24.0.1.Final</version.org.wildfly>
         <version.wildfly.maven.plugin>2.0.0.Final</version.wildfly.maven.plugin>
-        <wildfly-extras.repo.scm.connection>git@github.com:wildfly-extras/wildfly-galleon-pack-template.git
-        </wildfly-extras.repo.scm.connection>
-        <wildfly-extras.repo.scm.url>https://github.com/wildfly-extras/wildfly-galleon-pack-template
-        </wildfly-extras.repo.scm.url>
+        <wildfly-extras.repo.scm.connection>git@github.com:wildfly-extras/wildfly-galleon-pack-template.git</wildfly-extras.repo.scm.connection>
+        <wildfly-extras.repo.scm.url>https://github.com/wildfly-extras/wildfly-galleon-pack-template</wildfly-extras.repo.scm.url>
         <wildfly.build.output.dir>build/target/${server.name}</wildfly.build.output.dir>
     </properties>
+
     <repositories>
         <repository>
             <releases>

@@ -60,7 +60,8 @@ public class MicrometerSubsystemAdd extends AbstractBoottimeAddStepHandler {
         boolean exposeAnySubsystem = exposedSubsystems.remove("*");
         String prefix = MicrometerSubsystemDefinition.PREFIX.resolveModelAttribute(context, model)
                 .asStringOrNull();
-        boolean securityEnabled = MicrometerSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model).asBoolean();
+        boolean securityEnabled = MicrometerSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model)
+                .asBoolean();
 
         MicrometerRegistriesService.install(context, securityEnabled);
         MetricsCollectorService.install(context);
