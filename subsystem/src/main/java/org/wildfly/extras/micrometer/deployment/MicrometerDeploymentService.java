@@ -133,8 +133,7 @@ public class MicrometerDeploymentService implements Service {
                         address -> deploymentAddress.append(address),
                         exposeAnySubsystem,
                         exposedSubsystems,
-                        prefix, //deploymentUnit.getName(),
-                        true);
+                        prefix);
 
         setupMicrometerCdiBeans();
 
@@ -154,7 +153,7 @@ public class MicrometerDeploymentService implements Service {
 
             // We may run into naming conflicts with this. How to solve?
             MicrometerCdiExtension.registerApplicationRegistry(moduleCL,
-                    registriesSupplier.get().getApplicationRegistry());
+                    registriesSupplier.get().getRegistry());
         } finally {
             WildFlySecurityManager.setCurrentContextClassLoaderPrivileged(initialCl);
         }

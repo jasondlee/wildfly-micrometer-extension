@@ -21,9 +21,10 @@ package org.wildfly.extras.micrometer;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 
+import java.util.EnumSet;
+
 import org.jboss.as.controller.Extension;
 import org.jboss.as.controller.ExtensionContext;
-import org.jboss.as.controller.ModelVersion;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.SubsystemRegistration;
 import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
@@ -40,17 +41,7 @@ public class MicrometerSubsystemExtension implements Extension {
     private static final String RESOURCE_NAME =
             MicrometerSubsystemExtension.class.getPackage().getName() + ".LocalDescriptions";
 
-    protected static final ModelVersion VERSION_1_0_0 = ModelVersion.create(1, 0, 0);
-    private static final ModelVersion CURRENT_MODEL_VERSION = VERSION_1_0_0;
-
-    private static final MicrometerParser_1_0 CURRENT_PARSER = new MicrometerParser_1_0();
-
-    public static ResourceDescriptionResolver getResourceDescriptionResolver(final String... keyPrefix) {
-        return getResourceDescriptionResolver(true, keyPrefix);
-    }
-
-    static ResourceDescriptionResolver getResourceDescriptionResolver(final boolean useUnprefixedChildTypes,
-                                                                      final String... keyPrefix) {
+    static ResourceDescriptionResolver getResourceDescriptionResolver(final String... keyPrefix) {
         StringBuilder prefix = new StringBuilder(MicrometerSubsystemExtension.SUBSYSTEM_NAME);
         for (String kp : keyPrefix) {
             if (prefix.length() > 0) {
@@ -59,21 +50,26 @@ public class MicrometerSubsystemExtension implements Extension {
             prefix.append(kp);
         }
         return new StandardResourceDescriptionResolver(prefix.toString(), RESOURCE_NAME,
-                MicrometerSubsystemExtension.class.getClassLoader(), true, useUnprefixedChildTypes);
+                MicrometerSubsystemExtension.class.getClassLoader(), true, true);
     }
 
     @Override
     public void initialize(ExtensionContext context) {
-        final SubsystemRegistration subsystem = context.registerSubsystem(SUBSYSTEM_NAME, CURRENT_MODEL_VERSION);
-        subsystem.registerXMLElementWriter(CURRENT_PARSER);
+        final SubsystemRegistration subsystem = context.registerSubsystem(SUBSYSTEM_NAME,
+                MicrometerModel.CURRENT.getVersion());
+        subsystem.registerXMLElementWriter(new MicrometerParser(MicrometerSchema.CURRENT));
 
-        final ManagementResourceRegistration registration = subsystem.registerSubsystemModel(MicrometerSubsystemDefinition.INSTANCE);
-        registration.registerOperationHandler(GenericSubsystemDescribeHandler.DEFINITION, GenericSubsystemDescribeHandler.INSTANCE);
-        subsystem.registerDeploymentModel(MicrometerDeploymentDefinition.INSTANCE);
+        final ManagementResourceRegistration registration =
+                subsystem.registerSubsystemModel(MicrometerSubsystemDefinition.INSTANCE);
+        registration.registerOperationHandler(GenericSubsystemDescribeHandler.DEFINITION,
+                GenericSubsystemDescribeHandler.INSTANCE);
+//        subsystem.registerDeploymentModel(MicrometerDeploymentDefinition.INSTANCE);
     }
 
     @Override
     public void initializeParsers(ExtensionParsingContext context) {
-        context.setSubsystemXmlMapping(SUBSYSTEM_NAME, MicrometerParser_1_0.NAMESPACE, CURRENT_PARSER);
+        for (MicrometerSchema schema : EnumSet.allOf(MicrometerSchema.class)) {
+            context.setSubsystemXmlMapping(SUBSYSTEM_NAME, schema.getNamespaceUri(), new MicrometerParser(schema));
+        }
     }
 }

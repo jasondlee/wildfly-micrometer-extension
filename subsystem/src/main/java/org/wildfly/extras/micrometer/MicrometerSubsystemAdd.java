@@ -83,7 +83,7 @@ public class MicrometerSubsystemAdd extends AbstractBoottimeAddStepHandler {
             metricCollector.collectResourceMetrics(context.readResourceFromRoot(EMPTY_ADDRESS),
                     context.getRootResourceRegistration(),
                     Function.identity(),
-                    exposeAnySubsystem, exposedSubsystems, prefix, false);
+                    exposeAnySubsystem, exposedSubsystems, prefix);
         }, VERIFY);
 
         MicrometerExtensionLogger.MICROMETER_LOGGER.activatingSubsystem();

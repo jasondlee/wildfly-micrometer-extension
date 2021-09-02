@@ -91,9 +91,7 @@ public class MicrometerContextService implements Service {
         extensibleHttpManagement.get().addManagementHandler(CONTEXT, securityEnabledSupplier.get(), exchange -> {
             lock.readLock().lock();
             try {
-                StringBuilder sb = new StringBuilder();
-                registriesSupplier.get().getRegistries().forEach(r -> sb.append(r.scrape()));
-                exchange.getResponseSender().send(sb.toString());
+                exchange.getResponseSender().send(registriesSupplier.get().getRegistry().scrape());
             } finally {
                 lock.readLock().unlock();
             }

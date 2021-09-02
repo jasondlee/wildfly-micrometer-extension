@@ -68,11 +68,8 @@ public class MetricCollector {
                                                      Function<PathAddress, PathAddress> resourceAddressResolver,
                                                      boolean exposeAnySubsystem,
                                                      List<String> exposedSubsystems,
-                                                     String prefix,
-                                                     boolean applicationMetrics) {
-        MetricRegistration registration = new MetricRegistration(applicationMetrics ?
-                micrometerRegistries.getApplicationRegistry() :
-                micrometerRegistries.getVendorRegistry());
+                                                     String prefix) {
+        MetricRegistration registration = new MetricRegistration(micrometerRegistries.getRegistry());
 
         collectResourceMetrics0(resource, managementResourceRegistration, EMPTY_ADDRESS, resourceAddressResolver,
                 registration, exposeAnySubsystem, exposedSubsystems, prefix);

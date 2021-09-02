@@ -35,7 +35,7 @@ public class MicrometerRegistriesService implements Service {
     public void start(StartContext context) throws StartException {
         registries = new MicrometerRegistries();
 
-        JmxMetricCollector jmxMetricCollector = new JmxMetricCollector(registries.getJvmRegistry());
+        JmxMetricCollector jmxMetricCollector = new JmxMetricCollector(registries.getRegistry());
         try {
             jmxMetricCollector.init();
         } catch (IOException e) {

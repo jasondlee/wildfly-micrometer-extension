@@ -19,15 +19,22 @@
 
 package org.wildfly.extras.micrometer;
 
-import org.jboss.as.controller.SimpleResourceDefinition;
+import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
 
-public class MicrometerDeploymentDefinition extends SimpleResourceDefinition {
+import org.jboss.as.controller.PersistentResourceXMLDescription;
+import org.jboss.as.controller.PersistentResourceXMLParser;
 
-    public static final MicrometerDeploymentDefinition INSTANCE = new MicrometerDeploymentDefinition();
+public class MicrometerParser extends PersistentResourceXMLParser {
+    private final MicrometerSchema schema;
 
-    private MicrometerDeploymentDefinition() {
-        super(new Parameters(MicrometerSubsystemExtension.SUBSYSTEM_PATH,
-                MicrometerSubsystemExtension.getResourceDescriptionResolver())
-                .setFeature(false));
+    public MicrometerParser(MicrometerSchema schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public PersistentResourceXMLDescription getParserDescription() {
+        return  builder(MicrometerSubsystemExtension.SUBSYSTEM_PATH, schema.getNamespaceUri())
+                .addAttributes(MicrometerSubsystemDefinition.ATTRIBUTES)
+                .build();
     }
 }
