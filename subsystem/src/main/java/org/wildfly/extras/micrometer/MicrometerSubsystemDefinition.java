@@ -32,6 +32,7 @@ import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 import org.jboss.msc.service.ServiceName;
 import org.wildfly.extras.micrometer.metrics.MetricCollector;
+import org.wildfly.extras.micrometer.metrics.WildFlyRegistry;
 
 public class MicrometerSubsystemDefinition extends PersistentResourceDefinition {
     public static final String MICROMETER_MODULE = "org.wildfly.extras.micrometer";
@@ -46,7 +47,7 @@ public class MicrometerSubsystemDefinition extends PersistentResourceDefinition 
                     .addRequirements(CLIENT_FACTORY_CAPABILITY, MANAGEMENT_EXECUTOR, PROCESS_STATE_NOTIFIER)
                     .build();
     public static final RuntimeCapability<Void> MICROMETER_REGISTRY_RUNTIME_CAPABILITY =
-            RuntimeCapability.Builder.of(MICROMETER_MODULE + ".registry", MicrometerRegistries.class)
+            RuntimeCapability.Builder.of(MICROMETER_MODULE + ".registry", WildFlyRegistry.class)
                     .build();
     public static final RuntimeCapability<Void> MICROMETER_HTTP_CONTEXT_CAPABILITY =
             RuntimeCapability.Builder.of(MICROMETER_MODULE + ".http-context", MicrometerContextService.class)

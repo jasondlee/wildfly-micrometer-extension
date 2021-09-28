@@ -23,9 +23,9 @@ package org.wildfly.extras.micrometer.metrics;
 
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.CLIENT_FACTORY_CAPABILITY;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MANAGEMENT_EXECUTOR;
+import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROMETER_COLLECTOR;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROMETER_REGISTRY_RUNTIME_CAPABILITY;
 import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.PROCESS_STATE_NOTIFIER;
-import static org.wildfly.extras.micrometer.MicrometerSubsystemDefinition.MICROMETER_COLLECTOR;
 
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
@@ -39,7 +39,6 @@ import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
-import org.wildfly.extras.micrometer.MicrometerRegistries;
 
 /**
  * Service to create a metric collector
@@ -49,7 +48,7 @@ public class MetricsCollectorService implements Service<MetricCollector> {
     private final Supplier<ModelControllerClientFactory> modelControllerClientFactory;
     private final Supplier<Executor> managementExecutor;
     private final Supplier<ProcessStateNotifier> processStateNotifier;
-    private final Supplier<MicrometerRegistries> registriesSupplier;
+    private final Supplier<WildFlyRegistry> registrySupplier;
     private Consumer<MetricCollector> metricCollectorConsumer;
 
     private MetricCollector metricCollector;
@@ -63,10 +62,10 @@ public class MetricsCollectorService implements Service<MetricCollector> {
                 context.getCapabilityServiceName(MANAGEMENT_EXECUTOR, Executor.class));
         Supplier<ProcessStateNotifier> processStateNotifier = serviceBuilder.requires(
                 context.getCapabilityServiceName(PROCESS_STATE_NOTIFIER, ProcessStateNotifier.class));
-        Supplier<MicrometerRegistries> registriesSupplier = serviceBuilder.requires(MICROMETER_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
+        Supplier<WildFlyRegistry> registrySupplier = serviceBuilder.requires(MICROMETER_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
         Consumer<MetricCollector> metricCollectorConsumer = serviceBuilder.provides(MICROMETER_COLLECTOR);
         MetricsCollectorService service = new MetricsCollectorService(modelControllerClientFactory, managementExecutor,
-                processStateNotifier, registriesSupplier, metricCollectorConsumer);
+                processStateNotifier, registrySupplier, metricCollectorConsumer);
         serviceBuilder.setInstance(service)
                 .install();
     }
@@ -74,12 +73,12 @@ public class MetricsCollectorService implements Service<MetricCollector> {
     MetricsCollectorService(Supplier<ModelControllerClientFactory> modelControllerClientFactory,
                             Supplier<Executor> managementExecutor,
                             Supplier<ProcessStateNotifier> processStateNotifier,
-                            Supplier<MicrometerRegistries> registriesSupplier,
+                            Supplier<WildFlyRegistry> registrySupplier,
                             Consumer<MetricCollector> metricCollectorConsumer) {
         this.modelControllerClientFactory = modelControllerClientFactory;
         this.managementExecutor = managementExecutor;
         this.processStateNotifier = processStateNotifier;
-        this.registriesSupplier = registriesSupplier;
+        this.registrySupplier = registrySupplier;
         this.metricCollectorConsumer = metricCollectorConsumer;
     }
 
@@ -89,7 +88,7 @@ public class MetricsCollectorService implements Service<MetricCollector> {
         modelControllerClient = modelControllerClientFactory.get().createClient(managementExecutor.get());
 
         metricCollector = new MetricCollector(modelControllerClient, processStateNotifier.get(),
-                registriesSupplier.get());
+                registrySupplier.get());
 
         metricCollectorConsumer.accept(metricCollector);
     }

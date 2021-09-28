@@ -31,8 +31,8 @@ import org.jboss.msc.service.ServiceTarget;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StopContext;
 import org.wildfly.extras.micrometer.MicrometerCdiExtension;
-import org.wildfly.extras.micrometer.MicrometerRegistries;
 import org.wildfly.extras.micrometer.metrics.MetricCollector;
+import org.wildfly.extras.micrometer.metrics.WildFlyRegistry;
 import org.wildfly.security.manager.WildFlySecurityManager;
 
 public class MicrometerDeploymentService implements Service {
@@ -42,7 +42,7 @@ public class MicrometerDeploymentService implements Service {
     private final DeploymentUnit deploymentUnit;
     private final Supplier<MetricCollector> metricCollector;
     private final Supplier<Executor> managementExecutor;
-    private final Supplier<MicrometerRegistries> registriesSupplier;
+    private final Supplier<WildFlyRegistry> registrySupplier;
     private final boolean exposeAnySubsystem;
     private final List<String> exposedSubsystems;
     private final String prefix;
@@ -81,7 +81,7 @@ public class MicrometerDeploymentService implements Service {
         ServiceBuilder<?> sb = serviceTarget.addService(deploymentUnit.getServiceName().append("micrometer-metrics"));
         Supplier<MetricCollector> metricCollectorSupplier = sb.requires(MICROMETER_COLLECTOR);
         Supplier<Executor> managementExecutorSupplier = sb.requires(ServerService.EXECUTOR_CAPABILITY.getCapabilityServiceName());
-        Supplier<MicrometerRegistries> registriesSupplier = sb.requires(MICROMETER_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
+        Supplier<WildFlyRegistry> registriesSupplier = sb.requires(MICROMETER_REGISTRY_RUNTIME_CAPABILITY.getCapabilityServiceName());
 
         /*
          * The deployment metric service depends on the deployment complete service name to ensure that the metrics from
@@ -100,7 +100,7 @@ public class MicrometerDeploymentService implements Service {
                                        DeploymentUnit deploymentUnit,
                                        Supplier<MetricCollector> metricCollectorSupplier,
                                        Supplier<Executor> managementExecutorSupplier,
-                                       Supplier<MicrometerRegistries> registriesSupplier,
+                                       Supplier<WildFlyRegistry> registrySupplier,
                                        boolean exposeAnySubsystem,
                                        List<String> exposedSubsystems,
                                        String prefix) {
@@ -110,7 +110,7 @@ public class MicrometerDeploymentService implements Service {
         this.deploymentUnit = deploymentUnit;
         this.metricCollector = metricCollectorSupplier;
         this.managementExecutor = managementExecutorSupplier;
-        this.registriesSupplier = registriesSupplier;
+        this.registrySupplier = registrySupplier;
         this.exposeAnySubsystem = exposeAnySubsystem;
         this.exposedSubsystems = exposedSubsystems;
         this.prefix = prefix;
@@ -153,7 +153,7 @@ public class MicrometerDeploymentService implements Service {
 
             // We may run into naming conflicts with this. How to solve?
             MicrometerCdiExtension.registerApplicationRegistry(moduleCL,
-                    registriesSupplier.get().getRegistry());
+                    registrySupplier.get());
         } finally {
             WildFlySecurityManager.setCurrentContextClassLoaderPrivileged(initialCl);
         }

@@ -47,19 +47,18 @@ import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
-import org.wildfly.extras.micrometer.MicrometerRegistries;
 
 public class MetricCollector {
     private final LocalModelControllerClient modelControllerClient;
     private final ProcessStateNotifier processStateNotifier;
-    private final MicrometerRegistries micrometerRegistries;
+    private final WildFlyRegistry micrometerRegistry;
 
     public MetricCollector(LocalModelControllerClient modelControllerClient,
                            ProcessStateNotifier processStateNotifier,
-                           MicrometerRegistries micrometerRegistries) {
+                           WildFlyRegistry micrometerRegistry) {
         this.modelControllerClient = modelControllerClient;
         this.processStateNotifier = processStateNotifier;
-        this.micrometerRegistries = micrometerRegistries;
+        this.micrometerRegistry = micrometerRegistry;
     }
 
     // collect metrics from the resources
@@ -69,7 +68,7 @@ public class MetricCollector {
                                                      boolean exposeAnySubsystem,
                                                      List<String> exposedSubsystems,
                                                      String prefix) {
-        MetricRegistration registration = new MetricRegistration(micrometerRegistries.getRegistry());
+        MetricRegistration registration = new MetricRegistration(micrometerRegistry);
 
         collectResourceMetrics0(resource, managementResourceRegistration, EMPTY_ADDRESS, resourceAddressResolver,
                 registration, exposeAnySubsystem, exposedSubsystems, prefix);

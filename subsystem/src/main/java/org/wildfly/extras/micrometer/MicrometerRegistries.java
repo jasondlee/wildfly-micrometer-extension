@@ -8,7 +8,7 @@ import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import org.wildfly.extras.micrometer.metrics.WildFlyRegistry;
 
 public class MicrometerRegistries {
-    //    private final PrometheusMeterRegistry jvmRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+//    private final PrometheusMeterRegistry jvmRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 //    private final PrometheusMeterRegistry vendorRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 //    private final PrometheusMeterRegistry applicationRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
     private final WildFlyRegistry registry = new WildFlyRegistry();

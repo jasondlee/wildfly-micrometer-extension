@@ -44,9 +44,7 @@ public class MicrometerCdiExtension implements Extension {
     public void registerMicrometerBeans(@Observes AfterBeanDiscovery abd, BeanManager beanManager) {
         abd.addBean()
                 .addTransitiveTypeClosure(MeterRegistry.class)
-                .produceWith(i -> {
-                    return REGISTRY_INSTANCES.get(WildFlySecurityManager.getCurrentContextClassLoaderPrivileged());
-                });
+                .produceWith(i -> REGISTRY_INSTANCES.get(WildFlySecurityManager.getCurrentContextClassLoaderPrivileged()));
     }
 
     public void beforeShutdown(@Observes final BeforeShutdown bs) {

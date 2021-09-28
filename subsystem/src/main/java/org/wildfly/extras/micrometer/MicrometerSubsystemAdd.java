@@ -63,7 +63,7 @@ public class MicrometerSubsystemAdd extends AbstractBoottimeAddStepHandler {
         boolean securityEnabled = MicrometerSubsystemDefinition.SECURITY_ENABLED.resolveModelAttribute(context, model)
                 .asBoolean();
 
-        MicrometerRegistriesService.install(context, securityEnabled);
+        MicrometerRegistryService.install(context, securityEnabled);
         MetricsCollectorService.install(context);
         MicrometerContextService.install(context, securityEnabled);
 
