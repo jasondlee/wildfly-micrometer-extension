@@ -57,9 +57,9 @@
         <version.org.jboss.galleon>4.2.8.Final</version.org.jboss.galleon>
         <version.org.wildfly.checkstyle-config>1.0.8.Final</version.org.wildfly.checkstyle-config>
         <version.org.wildfly.common>1.5.4.Final</version.org.wildfly.common>
-        <version.org.wildfly.core>16.0.1.Final</version.org.wildfly.core>
+        <version.org.wildfly.core>17.0.0.Final</version.org.wildfly.core>
         <version.org.wildfly.galleon-plugins>4.2.8.Final</version.org.wildfly.galleon-plugins>
-        <version.org.wildfly>24.0.1.Final</version.org.wildfly>
+        <version.org.wildfly>25.0.0.Final</version.org.wildfly>
         <version.wildfly.maven.plugin>2.0.0.Final</version.wildfly.maven.plugin>
         <wildfly-extras.repo.scm.connection>git@github.com:wildfly-extras/wildfly-galleon-pack-template.git</wildfly-extras.repo.scm.connection>
         <wildfly-extras.repo.scm.url>https://github.com/wildfly-extras/wildfly-galleon-pack-template</wildfly-extras.repo.scm.url>
